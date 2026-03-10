@@ -1,4 +1,7 @@
-// BUTTON TOGGLE
+// =============================
+// BUTTON TOGGLE MESSAGE
+// =============================
+
 let toggled = false;
 let btn = document.getElementById("perfom");
 let msg = document.getElementById("msg");
@@ -19,7 +22,10 @@ btn.addEventListener("click", function () {
   }
 });
 
-// NAVIGATION CONTENT SYSTEM
+// =============================
+// NAVIGATION CONTENT MESSAGES
+// =============================
+
 let home = document.getElementById("homeLink");
 let about = document.getElementById("aboutLink");
 let project = document.getElementById("projectsLink");
@@ -31,80 +37,89 @@ contentMsg.style.top = "225px";
 contentMsg.style.right = "50px";
 contentMsg.style.borderRadius = "1rem";
 
+// Function to change content message
+function changeContent(text, color = "rgb(10,10,10)", bg = "rgb(235,235,235)") {
+  contentMsg.textContent = text;
+  contentMsg.style.color = color;
+  contentMsg.style.backgroundColor = bg;
+  contentMsg.style.fontSize = "16px";
+}
+
+// Attach click events
 home.addEventListener("click", function (e) {
   e.preventDefault();
-  contentMsg.textContent =
-    "Welcome to my home page, relax — we are prepared to equip you brother";
-  contentMsg.style.color = "rgb(11, 12, 12)";
-  contentMsg.style.backgroundColor = "rgb(252, 251, 253)";
-  contentMsg.style.fontSize = "16px";
+  changeContent(
+    "Welcome to my home page, relax — we are prepared to equip you brother",
+    "rgb(11,12,12)",
+    "rgb(252,251,253)",
+  );
 });
+
 about.addEventListener("click", function (e) {
   e.preventDefault();
-  contentMsg.textContent = "about me ,am lord luke";
-  contentMsg.style.color = "rgb(11, 12, 12)";
-  contentMsg.style.backgroundColor = "rgb(252, 251, 253)";
-  contentMsg.style.fontSize = "16px";
+  changeContent(
+    "About me, I am Lord Luke",
+    "rgb(11,12,12)",
+    "rgb(252,251,253)",
+  );
 });
 
 project.addEventListener("click", function (e) {
   e.preventDefault();
-  contentMsg.textContent =
-    "We are building the most powerful AI platform  the future is here.";
-  contentMsg.style.color = "rgb(12, 14, 13)";
-  contentMsg.style.backgroundColor = "rgb(252, 253, 255)";
-  contentMsg.style.fontSize = "16px";
+  changeContent(
+    "We are building the most powerful AI platform — the future is here.",
+    "rgb(12,14,13)",
+    "rgb(252,253,255)",
+  );
 });
+
 contact.addEventListener("click", function (e) {
   e.preventDefault();
-
-  contentMsg.textContent = "you realy troubled me, i swwer";
-  contentMsg.style.color = "rgb(10, 10, 10)";
-  contentMsg.style.backgroundColor = "rgb(235, 235, 235)";
-  contentMsg.style.fontSize = "16px";
+  changeContent(
+    "You really troubled me, I swear",
+    "rgb(10,10,10)",
+    "rgb(235,235,235)",
+  );
 });
 
 // =============================
-// PROFESSIONAL SLIDER (PNG + JPG)
+// PROFESSIONAL SLIDER (LIMITED FOR LIVE SERVER)
 // =============================
 
-const totalImages = 18;
-let images = [];
+// Limit to 5 images for smooth Live Server loading
+const totalImages = 5;
+let sliderImages = [];
 
 // Generate image paths
 for (let i = 1; i <= totalImages; i++) {
-  images.push(`images/imag${i}.png`);
-  images.push(`images/imag${i}.jpg`);
+  sliderImages.push(`images/imag${i}.png`); // prefer PNG
 }
 
-// Preload and keep valid images
+// Preload images safely
 let validImages = [];
 let loadedCount = 0;
 
-images.forEach((src) => {
+sliderImages.forEach((src) => {
   const img = new Image();
   img.src = src;
-
   img.onload = () => {
     validImages.push(src);
     loadedCount++;
-
-    if (loadedCount === images.length) {
+    if (loadedCount === sliderImages.length) {
       startSlider();
       buildGallery();
     }
   };
-
   img.onerror = () => {
     loadedCount++;
-
-    if (loadedCount === images.length) {
+    if (loadedCount === sliderImages.length) {
       startSlider();
       buildGallery();
     }
   };
 });
 
+// Start the slider
 function startSlider() {
   if (validImages.length === 0) return;
 
@@ -115,9 +130,7 @@ function startSlider() {
 
   setInterval(() => {
     index++;
-    if (index >= validImages.length) {
-      index = 0;
-    }
+    if (index >= validImages.length) index = 0;
 
     slideImage.style.opacity = 0;
 
@@ -129,14 +142,13 @@ function startSlider() {
 }
 
 // =============================
-// GALLERY BUILDER (dynamic)
+// LIGHTBOX AND GALLERY
 // =============================
 
 let currentIndex = 0;
 
 function buildGallery() {
   const grid = document.getElementById("gallery-grid");
-
   if (!grid) return;
   grid.innerHTML = "";
 
@@ -145,17 +157,11 @@ function buildGallery() {
     img.src = src;
     img.alt = "gallery image";
 
-    img.onclick = () => {
-      openLightbox(index);
-    };
+    img.onclick = () => openLightbox(index);
 
     grid.appendChild(img);
   });
 }
-
-// =============================
-// LIGHTBOX MODAL
-// =============================
 
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
@@ -165,9 +171,9 @@ function openLightbox(index) {
   currentIndex = index;
   lightbox.style.display = "block";
   lightboxImg.src = validImages[currentIndex];
-
   addHistory("Viewed image: " + validImages[currentIndex]);
 }
+
 document.getElementById("lightbox-next").onclick = () => {
   currentIndex++;
   if (currentIndex >= validImages.length) currentIndex = 0;
@@ -184,21 +190,17 @@ lightboxClose.onclick = () => {
   lightbox.style.display = "none";
 };
 
-// CLOSE LIGHTBOX WHEN CLICKING OUTSIDE IMAGE (optional)
 lightbox.addEventListener("click", (e) => {
-  if (e.target === lightbox) {
-    lightbox.style.display = "none";
-  }
+  if (e.target === lightbox) lightbox.style.display = "none";
 });
 
 // =============================
-// HISTORY (LOCAL STORAGE)
+// HISTORY SYSTEM (LOCAL STORAGE)
 // =============================
 
 let historyList = document.getElementById("history-list");
 let clearBtn = document.getElementById("clear-history");
 
-// load history on start
 function loadHistory() {
   let saved = localStorage.getItem("history");
   if (!saved) return;
@@ -226,7 +228,7 @@ function saveHistory() {
   localStorage.setItem("history", JSON.stringify(items));
 }
 
-// clear history
+// Clear history button
 if (clearBtn) {
   clearBtn.onclick = () => {
     localStorage.removeItem("history");
@@ -234,5 +236,5 @@ if (clearBtn) {
   };
 }
 
-// load on start
+// Load history on start
 loadHistory();
