@@ -392,3 +392,11 @@ p {
 .story-text p {
   margin-bottom: 10px;
 }
+
+#student-portal-link .btn {
+  color: #e8e9df;
+  background-color: #0c0b06;
+  padding: 10px;
+  border: 4#f0e4a9;
+  border-radius: 10px;
+}

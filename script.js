@@ -87,7 +87,7 @@ contact.addEventListener("click", function (e) {
 // =============================
 
 // Limit to 5 images for smooth Live Server loading
-const totalImages = 5;
+const totalImages = 50;
 let sliderImages = [];
 
 // Generate image paths
@@ -238,3 +238,51 @@ if (clearBtn) {
 
 // Load history on start
 loadHistory();
+
+
+
+/////////////////////////
+// Modern Gallery – 4 Photos Only
+/////////////////////////
+const studentData = localStorage.getItem("loggedInStudent");
+if (studentData) {
+  const student = JSON.parse(studentData);
+  const galleryContainer = document.getElementById("gallery-container");
+
+  if (galleryContainer) {
+    const photos = student.photos || [student.profilePicture]; // ensures all images
+    galleryContainer.innerHTML = "";
+    galleryContainer.style.display = "grid";
+    galleryContainer.style.gridTemplateColumns = "repeat(auto-fit, minmax(120px, 1fr))";
+    galleryContainer.style.gap = "10px";
+
+    photos.forEach((photoPath) => {
+      const imgWrapper = document.createElement("div");
+      imgWrapper.style.overflow = "hidden";
+      imgWrapper.style.borderRadius = "12px";
+      imgWrapper.style.cursor = "pointer";
+      imgWrapper.style.boxShadow = "0 4px 10px rgba(0,0,0,0.15)";
+      imgWrapper.style.transition = "transform 0.3s";
+
+      const img = new Image();
+      img.src = photoPath;
+      img.alt = `${student.name} Photo`;
+      img.style.width = "100%";
+      img.style.height = "120px"; // consistent height
+      img.style.objectFit = "cover"; // ensures proper crop
+      imgWrapper.appendChild(img);
+
+      // Hover effect
+      imgWrapper.addEventListener("mouseenter", () => {
+        imgWrapper.style.transform = "scale(1.05)";
+      });
+      imgWrapper.addEventListener("mouseleave", () => {
+        imgWrapper.style.transform = "scale(1)";
+      });
+
+      galleryContainer.appendChild(imgWrapper);
+
+      img.onerror = () => console.warn("Image failed to load:", photoPath);
+    });
+  }
+}

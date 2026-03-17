@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="portal.css" />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- ---------- Header ---------- -->
+      <header class="dashboard-header">
+        <!-- Left: School Logo -->
+        <div class="header-left">
+          <img src="images/image.png" alt="School Logo" class="school-logo" />
+        </div>
+
+        <!-- Center: Welcome Message -->
+        <div class="header-center">
+          <h1 id="student-name-header">Welcome, Student</h1>
+        </div>
+
+        <!-- Right: Profile Picture + Logout -->
+        <div class="header-right">
+          <img
+            src="images/default-profile.png"
+            alt="Profile Picture"
+            class="student-profile"
+            id="student-profile"
+
+            <button id="id-card-btn">ID Card</button>
+          />
+          <button id="logout-btn">Logout</button>
+        </div>
+      </header>
+      <!-- ---------- School News ---------- -->
+      <section class="school-news">
+        <h2>School News</h2>
+        <ul>
+          <li>📢 School resumes on Monday.</li>
+          <li>📢 Read your book if you go home, prepare for test on Monday.</li>
+          <li>📢 Inter-house sports next month.</li>
+        </ul>
+      </section>
+
+      <!-- Toggle Buttons -->
+<div class="toggle-buttons">
+  <button id="show-results-btn">View Results</button>
+  <button id="show-id-card-btn">View ID Card</button>
+</div>
+
+      <!-- ---------- Main Content Panels ---------- -->
+      <main>
+        <!-- Student Info -->
+        <section class="student-info">
+          <h2>Your Information</h2>
+          <p>
+            <strong>Student ID:</strong> <span id="student-id-display"></span>
+          </p>
+          <p><strong>Name:</strong> <span id="student-name"></span></p>
+          <p><strong>Class:</strong> <span id="student-class"></span></p>
+        </section>
+
+        <!-- Student Results -->
+        <section class="student-results">
+          <h2>Your Results</h2>
+          <table id="results-table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Score</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Results will be dynamically inserted by JS -->
+            </tbody>
+          </table>
+        </section>
+
+        <div class="academic-summary">
+          <h3>Academic Summary</h3>
+          <p>
+            <strong>Average Score:</strong> <span id="average-score"></span>
+          </p>
+          <p>
+            <strong>Performance:</strong> <span id="performance-level"></span>
+          </p>
+        </div>
+      </main>
+    </div>
+
+<div id="id-card-section" style="display:none;">
+  <div class="id-card">
+    <img src="images/default-profile.png" id="id-card-photo" alt="Student Photo" />
+    <h2 id="id-card-name">Student Name</h2>
+    <p><strong>ID:</strong> <span id="id-card-id"></span></p>
+    <p><strong>Class:</strong> <span id="id-card-class"></span></p>
+  </div>
+</div>
+
+    <!-- ---------- JS ---------- -->
+    <script src="portal.js"></script>
+  </body>
+</html>
