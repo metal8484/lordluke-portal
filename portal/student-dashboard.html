@@ -8,76 +8,55 @@
   </head>
   <body>
     <div class="dashboard-container">
-      <!-- ---------- Header ---------- -->
+      <!-- Header -->
       <header class="dashboard-header">
-        <!-- Left: School Logo -->
         <div class="header-left">
           <img src="images/image.png" alt="School Logo" class="school-logo" />
         </div>
-
-        <!-- Center: Welcome Message -->
         <div class="header-center">
           <h1 id="student-name-header">Welcome, Student</h1>
         </div>
-
-        <!-- Right: Profile Picture + Logout -->
         <div class="header-right">
           <img
             src="images/default-profile.png"
             alt="Profile Picture"
             class="student-profile"
             id="student-profile"
-
-            <button id="id-card-btn">ID Card</button>
           />
           <button id="logout-btn">Logout</button>
         </div>
       </header>
-      <!-- ---------- School News ---------- -->
-      <section class="school-news">
+
+      <!-- Default School News View -->
+      <section class="school-news" id="default-view">
         <h2>School News</h2>
         <ul>
           <li>📢 School resumes on Monday.</li>
           <li>📢 Read your book if you go home, prepare for test on Monday.</li>
           <li>📢 Inter-house sports next month.</li>
         </ul>
+        <div class="toggle-buttons">
+          <button id="show-results-btn">View Results</button>
+          <button id="show-id-card-btn">View ID Card</button>
+        </div>
       </section>
 
-      <!-- Toggle Buttons -->
-<div class="toggle-buttons">
-  <button id="show-results-btn">View Results</button>
-  <button id="show-id-card-btn">View ID Card</button>
-</div>
-
-      <!-- ---------- Main Content Panels ---------- -->
-      <main>
-        <!-- Student Info -->
-        <section class="student-info">
-          <h2>Your Information</h2>
-          <p>
-            <strong>Student ID:</strong> <span id="student-id-display"></span>
-          </p>
-          <p><strong>Name:</strong> <span id="student-name"></span></p>
-          <p><strong>Class:</strong> <span id="student-class"></span></p>
-        </section>
-
-        <!-- Student Results -->
-        <section class="student-results">
-          <h2>Your Results</h2>
-          <table id="results-table">
-            <thead>
-              <tr>
-                <th>Subject</th>
-                <th>Score</th>
-                <th>Grade</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Results will be dynamically inserted by JS -->
-            </tbody>
-          </table>
-        </section>
-
+      <!-- Results Panel -->
+      <section class="student-results" style="display: none">
+        <button id="results-back-btn" class="top-back-btn">
+          ← Back to Dashboard
+        </button>
+        <h2>Your Results</h2>
+        <table id="results-table">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Score</th>
+              <th>Grade</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
         <div class="academic-summary">
           <h3>Academic Summary</h3>
           <p>
@@ -87,19 +66,28 @@
             <strong>Performance:</strong> <span id="performance-level"></span>
           </p>
         </div>
-      </main>
+      </section>
+
+      <!-- ID Card Panel -->
+      <section id="id-card-section" style="display: none">
+        <button id="id-card-back-btn" class="top-back-btn">
+          ← Back to Dashboard
+        </button>
+        <div class="id-card">
+          <img
+            src="images/default-profile.png"
+            id="id-card-photo"
+            alt="Student Photo"
+          />
+          <h2 id="id-card-name">Student Name</h2>
+          <p><strong>ID:</strong> <span id="id-card-id"></span></p>
+          <p><strong>Class:</strong> <span id="id-card-class"></span></p>
+          <p><strong>Email:</strong> <span id="id-card-email"></span></p>
+          <div class="id-card-gallery" id="id-card-gallery"></div>
+        </div>
+      </section>
     </div>
 
-<div id="id-card-section" style="display:none;">
-  <div class="id-card">
-    <img src="images/default-profile.png" id="id-card-photo" alt="Student Photo" />
-    <h2 id="id-card-name">Student Name</h2>
-    <p><strong>ID:</strong> <span id="id-card-id"></span></p>
-    <p><strong>Class:</strong> <span id="id-card-class"></span></p>
-  </div>
-</div>
-
-    <!-- ---------- JS ---------- -->
     <script src="portal.js"></script>
   </body>
 </html>

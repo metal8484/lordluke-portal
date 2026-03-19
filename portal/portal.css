@@ -373,7 +373,6 @@ main {
   margin-bottom: 10px;
 }
 
-
 /* Toggle Buttons */
 .toggle-buttons {
   display: flex;
@@ -395,4 +394,177 @@ main {
 .toggle-buttons button:hover {
   background-color: #0056b3;
   transform: scale(1.05);
+}
+
+/* ID Card Gallery */
+.id-card-gallery {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.id-card-gallery img {
+  width: 120px; /* larger for better view */
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #007bff;
+}
+
+/* Back Button in ID Card */
+#id-card-back-btn {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#id-card-back-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Top Back Button for Results and ID Card */
+.top-back-btn {
+  display: block;
+  margin: 10px auto 20px auto;
+  padding: 12px 25px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+  width: fit-content;
+}
+
+.top-back-btn:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Force full viewport fit, no scroll */
+.student-results,
+#id-card-section {
+  height: calc(100vh - 130px); /* header + padding */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 15px;
+}
+
+.student-results table {
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.id-card {
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+.id-card-gallery {
+  flex-wrap: wrap;
+}
+
+/* ---------- Dynamic Dashboard Adjustments ---------- */
+
+/* Reduce header height when viewing Results or ID */
+body.viewing-section header.dashboard-header {
+  padding: 10px 20px;
+}
+
+body.viewing-section .header-left .school-logo {
+  width: 80px;
+  height: auto;
+}
+
+body.viewing-section .student-profile {
+  width: 80px;
+  height: 80px;
+  border-width: 2px;
+}
+
+/* Back buttons on top */
+#results-back-btn,
+#id-card-back-btn {
+  display: block;
+  margin: 10px auto 20px auto;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px 25px;
+  background-color: #ff7f50;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#results-back-btn:hover,
+#id-card-back-btn:hover {
+  background-color: #ff5722;
+  transform: scale(1.05);
+}
+
+/* ID card unique style */
+#id-card-section .id-card {
+  max-width: 450px;
+  margin: 20px auto;
+  padding: 25px 20px;
+  background: linear-gradient(135deg, #e0f7fa, #80deea);
+  border-radius: 20px;
+  border-left: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+#id-card-section .id-card h2 {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+#id-card-section .id-card p {
+  margin: 4px 0;
+  font-size: 16px;
+  color: #006064;
+}
+
+#id-card-gallery {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+#id-card-gallery img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid #006064;
+}
+
+/* Fit everything on screen: no scrolling */
+.student-results,
+#id-card-section {
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+/* Remove extra spacing from results table */
+.student-results table {
+  font-size: 15px;
+}
+
+.student-results th,
+.student-results td {
+  padding: 10px 8px;
 }
