@@ -239,8 +239,6 @@ if (clearBtn) {
 // Load history on start
 loadHistory();
 
-
-
 /////////////////////////
 // Modern Gallery – 4 Photos Only
 /////////////////////////
@@ -253,7 +251,8 @@ if (studentData) {
     const photos = student.photos || [student.profilePicture]; // ensures all images
     galleryContainer.innerHTML = "";
     galleryContainer.style.display = "grid";
-    galleryContainer.style.gridTemplateColumns = "repeat(auto-fit, minmax(120px, 1fr))";
+    galleryContainer.style.gridTemplateColumns =
+      "repeat(auto-fit, minmax(120px, 1fr))";
     galleryContainer.style.gap = "10px";
 
     photos.forEach((photoPath) => {
