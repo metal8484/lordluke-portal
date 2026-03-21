@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <style>
+      /* ---------- Reset ---------- */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #6b73ff, #000dff);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+
+      h1,
+      h2 {
+        color: #fff;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      /* ---------- Form ---------- */
+      form {
+        background-color: #fff;
+        padding: 25px 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        width: 350px;
+        margin-bottom: 30px;
+      }
+
+      form input {
+        width: 100%;
+        padding: 10px 12px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+      }
+      form input:focus {
+        border-color: #000dff;
+        outline: none;
+        box-shadow: 0 0 8px rgba(0, 13, 255, 0.5);
+      }
+
+      form button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        background-color: #000dff;
+        color: #fff;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      form button:hover {
+        background-color: #6b73ff;
+      }
+
+      #add-result-message {
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 15px;
+      }
+
+      /* ---------- Table ---------- */
+      table {
+        width: 90%;
+        max-width: 1000px;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.25);
+      }
+      th,
+      td {
+        padding: 12px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+      }
+      th {
+        background-color: #000dff;
+        color: #fff;
+      }
+      tr:hover {
+        background-color: #f1f1f1;
+      }
+
+      .edit-btn {
+        padding: 6px 12px;
+        background-color: #ffa500;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .edit-btn:hover {
+        background-color: #ffbf00;
+      }
+
+      #logout-btn {
+        padding: 12px 25px;
+        background-color: #ff3333;
+        color: #fff;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      #logout-btn:hover {
+        background-color: #ff6666;
+      }
+
+      /* ---------- Modal ---------- */
+      #edit-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      #edit-modal > div {
+        background: #fff;
+        padding: 20px 25px;
+        border-radius: 12px;
+        width: 350px;
+        max-width: 90%;
+      }
+      #edit-modal h2 {
+        margin-bottom: 15px;
+      }
+      #modal-subjects {
+        margin-bottom: 15px;
+      }
+      #modal-new-score {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+      }
+      #modal-save-btn {
+        padding: 10px 15px;
+        background: #000dff;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+      }
+      #modal-cancel-btn {
+        padding: 10px 15px;
+        background: #ff3333;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      /* ---------- Responsive ---------- */
+      @media (max-width: 400px) {
+        form {
+          width: 90%;
+        }
+        table {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Admin Dashboard</h1>
+
+    <!-- ---------- Add Student Result Form ---------- -->
+    <form id="add-result-form">
+      <h2>Add Student Result</h2>
+      <input
+        type="text"
+        id="student-id-input"
+        placeholder="Student ID"
+        required
+      />
+      <input type="text" id="subject-input" placeholder="Subject" required />
+      <input type="number" id="score-input" placeholder="Score" required />
+      <button type="submit">Add Result</button>
+      <div id="add-result-message"></div>
+    </form>
+
+    <!-- ---------- Students Table ---------- -->
+    <h2>Students</h2>
+    <table id="students-table">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Email</th>
+        <th>Results Count</th>
+        <th>Action</th>
+      </tr>
+    </table>
+
+    <!-- ---------- Logout Button ---------- -->
+    <button id="logout-btn">Logout</button>
+
+    <!-- ---------- Edit Result Modal ---------- -->
+    <div id="edit-modal">
+      <div>
+        <h2 id="modal-student-name">Edit Result</h2>
+        <div id="modal-subjects"></div>
+        <input
+          type="number"
+          id="modal-new-score"
+          placeholder="Enter new score (0-100)"
+        />
+        <button id="modal-save-btn">Save</button>
+        <button id="modal-cancel-btn">Cancel</button>
+      </div>
+    </div>
+
+    <script src="admin-dashboard.js"></script>
+  </body>
+</html>

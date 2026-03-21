@@ -1,5 +1,5 @@
 // =====================
-// Full Portal JS
+// Full Portal JS (Cleaned)
 // =====================
 
 // ---------- Sample Students ----------
@@ -58,20 +58,30 @@ if (loginForm) {
 }
 
 // ---------- DASHBOARD ----------
+
+// ===== STUDENT DASHBOARD LOGIC =====
 const studentData = localStorage.getItem("loggedInStudent");
 if (studentData) {
-  const student = JSON.parse(studentData);
+  let student = JSON.parse(studentData);
 
-  // Header
+  // Load latest students from localStorage
+  const allStudents = JSON.parse(localStorage.getItem("students")) || [];
+  const updatedStudent = allStudents.find((s) => s.id === student.id);
+  if (updatedStudent) {
+    student = updatedStudent;
+    localStorage.setItem("loggedInStudent", JSON.stringify(student));
+  }
+
+  // ----- HEADER -----
   const nameHeader = document.getElementById("student-name-header");
   if (nameHeader) nameHeader.textContent = `Welcome, ${student.name}`;
 
-  // Profile Pic
+  // ----- PROFILE PICTURE -----
   const profilePic = document.getElementById("student-profile");
   if (profilePic)
     profilePic.src = student.profilePicture || "images/default-profile.png";
 
-  // Results Table
+  // ----- RESULTS TABLE -----
   const resultsTableBody = document.querySelector("#results-table tbody");
   if (resultsTableBody) {
     resultsTableBody.innerHTML = "";
@@ -81,9 +91,12 @@ if (studentData) {
       resultsTableBody.appendChild(row);
     });
 
-    // Average & Performance
+    // ----- AVERAGE & PERFORMANCE -----
     const total = student.results.reduce((sum, r) => sum + r.score, 0);
-    const avg = (total / student.results.length).toFixed(2);
+    const avg = student.results.length
+      ? (total / student.results.length).toFixed(2)
+      : 0;
+
     const avgDisplay = document.getElementById("average-score");
     if (avgDisplay) avgDisplay.textContent = avg;
 
@@ -97,7 +110,7 @@ if (studentData) {
     if (perfDisplay) perfDisplay.textContent = performance;
   }
 
-  // ID Card
+  // ----- ID CARD -----
   const idPhoto = document.getElementById("id-card-photo");
   const idName = document.getElementById("id-card-name");
   const idId = document.getElementById("id-card-id");
@@ -122,7 +135,7 @@ if (studentData) {
   }
 }
 
-// Logout
+// ----- LOGOUT -----
 const logoutBtn = document.getElementById("logout-btn");
 if (logoutBtn) {
   logoutBtn.addEventListener("click", () => {
@@ -131,13 +144,13 @@ if (logoutBtn) {
   });
 }
 
-// Dashboard Protection
+// ----- DASHBOARD PROTECTION -----
 if (document.getElementById("results-table") && !studentData) {
   alert("You must login first!");
   window.location.href = "./login.html";
 }
 
-// Toggle Sections
+// ----- TOGGLE SECTIONS (CLEAN VERSION) -----
 const showResultsBtn = document.getElementById("show-results-btn");
 const showIdCardBtn = document.getElementById("show-id-card-btn");
 const studentResultsSection = document.querySelector(".student-results");
@@ -147,11 +160,14 @@ const defaultView = document.getElementById("default-view");
 const resultsBackBtn = document.getElementById("results-back-btn");
 const idBackBtn = document.getElementById("id-card-back-btn");
 
+const bodyEl = document.body;
+
 if (showResultsBtn && studentResultsSection && defaultView) {
   showResultsBtn.addEventListener("click", () => {
     studentResultsSection.style.display = "block";
     idCardSection.style.display = "none";
     defaultView.style.display = "none";
+    bodyEl.classList.add("viewing-section");
   });
 }
 
@@ -160,6 +176,7 @@ if (showIdCardBtn && idCardSection && defaultView) {
     idCardSection.style.display = "block";
     studentResultsSection.style.display = "none";
     defaultView.style.display = "none";
+    bodyEl.classList.add("viewing-section");
   });
 }
 
@@ -167,6 +184,7 @@ if (resultsBackBtn) {
   resultsBackBtn.addEventListener("click", () => {
     studentResultsSection.style.display = "none";
     defaultView.style.display = "block";
+    bodyEl.classList.remove("viewing-section");
   });
 }
 
@@ -174,33 +192,6 @@ if (idBackBtn) {
   idBackBtn.addEventListener("click", () => {
     idCardSection.style.display = "none";
     defaultView.style.display = "block";
-  });
-}
-
-// Add this to your existing portal.js at the end
-
-const bodyEl = document.body;
-
-if (showResultsBtn) {
-  showResultsBtn.addEventListener("click", () => {
-    bodyEl.classList.add("viewing-section");
-  });
-}
-
-if (showIdCardBtn) {
-  showIdCardBtn.addEventListener("click", () => {
-    bodyEl.classList.add("viewing-section");
-  });
-}
-
-if (resultsBackBtn) {
-  resultsBackBtn.addEventListener("click", () => {
-    bodyEl.classList.remove("viewing-section");
-  });
-}
-
-if (idBackBtn) {
-  idBackBtn.addEventListener("click", () => {
     bodyEl.classList.remove("viewing-section");
   });
 }

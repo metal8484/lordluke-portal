@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login</title>
+    <style>
+      /* ---------- Reset some default styles ---------- */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #6b73ff, #000dff);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* ---------- Login container ---------- */
+      .login-container {
+        background-color: #fff;
+        padding: 40px 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        width: 350px;
+        text-align: center;
+      }
+
+      h1 {
+        margin-bottom: 25px;
+        color: #000dff;
+        font-size: 28px;
+      }
+
+      form input {
+        width: 100%;
+        padding: 12px 15px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+      }
+
+      form input:focus {
+        border-color: #000dff;
+        outline: none;
+        box-shadow: 0 0 8px rgba(0, 13, 255, 0.5);
+      }
+
+      form button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        background-color: #000dff;
+        color: #fff;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      form button:hover {
+        background-color: #6b73ff;
+      }
+
+      #admin-login-message {
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 15px;
+      }
+
+      /* Responsive */
+      @media (max-width: 400px) {
+        .login-container {
+          width: 90%;
+          padding: 30px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h1>Admin Login</h1>
+      <form id="admin-login-form">
+        <input
+          type="text"
+          id="admin-username"
+          placeholder="Username"
+          required
+        />
+        <input
+          type="password"
+          id="admin-password"
+          placeholder="Password"
+          required
+        />
+        <button type="submit">Login</button>
+        <div id="admin-login-message"></div>
+      </form>
+    </div>
+
+    <script src="admin.js"></script>
+  </body>
+</html>
