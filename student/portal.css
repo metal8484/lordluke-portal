@@ -1,0 +1,570 @@
+/* =========================
+   Portal CSS – Full Upgrade
+========================= */
+
+/* ---------- Reset Basic Styles ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background-color: #f0f2f5;
+}
+
+/* =========================
+   Login Page Styles
+========================= */
+.login-background {
+  background: linear-gradient(135deg, #74ebd5, #acb6e5);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.portal-container {
+  max-width: 400px;
+  padding: 40px 35px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+}
+
+.portal-container h1 {
+  margin-bottom: 25px;
+  color: #007bff;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.school-logo {
+  width: 100px;
+  margin-bottom: 20px;
+}
+
+.portal-container input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.portal-container button {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.portal-container button:hover {
+  background-color: #0056b3;
+}
+
+#login-message {
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+/* =========================
+   Dashboard Styles
+========================= */
+.dashboard-container {
+  max-width: 1000px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #f8f9fa;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Header ---------- */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-left h1 {
+  font-size: 22px;
+  color: #007bff;
+}
+
+.student-profile {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #007bff;
+}
+
+/* Logout button in header */
+header button {
+  padding: 10px 20px;
+  background-color: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+header button:hover {
+  background-color: #d9363e;
+}
+
+/* ---------- Main Panels ---------- */
+main {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+/* Student Info & Results Panels */
+.student-info,
+.student-results {
+  flex: 1 1 400px;
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.student-info h2,
+.student-results h2 {
+  margin-bottom: 15px;
+  color: #007bff;
+}
+
+/* Results Table */
+.student-results table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.student-results th,
+.student-results td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.student-results th {
+  background-color: #007bff;
+  color: white;
+}
+
+.student-results tr:nth-child(even) {
+  background-color: #e9f0f7;
+}
+
+.student-results tr:hover {
+  background-color: #d0e2f2;
+  transition: background 0.3s;
+}
+
+/* ---------- School News ---------- */
+.school-news {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.school-news h2 {
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+.school-news li {
+  margin-bottom: 8px;
+}
+
+/* =========================
+   Responsive Design
+========================= */
+@media (max-width: 768px) {
+  main {
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
+
+/* ---------- Header Layout ---------- */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Left – Logo */
+.dashboard-header .header-left .school-logo {
+  width: 120px; /* larger logo for clarity */
+  height: auto;
+}
+
+/* Center – Welcome */
+.dashboard-header .header-center h1 {
+  font-size: 24px;
+  color: #007bff;
+  text-align: center;
+  margin: 0;
+}
+
+/* Right – Profile + Logout */
+.dashboard-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Profile Picture */
+.student-profile {
+  width: 120px; /* professional size */
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover; /* image fits perfectly */
+  border: 3px solid #007bff;
+}
+
+/* Logout Button */
+#logout-btn {
+  padding: 10px 20px;
+  background-color: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#logout-btn:hover {
+  background-color: #d9363e;
+}
+
+/* Responsive for small screens */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
+  .header-right {
+    gap: 10px;
+  }
+}
+
+/* Increase School Logo */
+.dashboard-header .header-left .school-logo {
+  width: 150px; /* bigger logo */
+  height: auto;
+}
+
+/* Increase Student Profile Picture */
+.student-profile {
+  width: 140px; /* bigger profile */
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #007bff; /* slightly thicker border for style */
+}
+
+/* ---------- Shake Animation ---------- */
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* ---------- Login Form Hover Effect ---------- */
+.portal-container:hover {
+  animation: shake 0.5s;
+}
+
+/* Button hover effect */
+.portal-container button:hover {
+  background-color: #0056b3; /* keeps professional blue hover */
+  transform: scale(1.05); /* slight grow effect for attention */
+}
+
+/* Academic Summary */
+.academic-summary {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f1f7ff;
+  border-radius: 10px;
+  border-left: 5px solid #007bff;
+}
+
+.academic-summary h3 {
+  margin-bottom: 10px;
+  color: #007bff;
+}
+
+.id-card {
+  max-width: 400px;
+  margin: 30px auto;
+  padding: 25px;
+  text-align: center;
+  background-color: #f1f7ff;
+  border-radius: 15px;
+  border-left: 5px solid #007bff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.id-card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #007bff;
+  margin-bottom: 15px;
+}
+
+.id-card h2 {
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+/* Toggle Buttons */
+.toggle-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.toggle-buttons button {
+  padding: 10px 20px;
+  background-color: #007bff; /* professional blue */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.toggle-buttons button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* ID Card Gallery */
+.id-card-gallery {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.id-card-gallery img {
+  width: 120px; /* larger for better view */
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #007bff;
+}
+
+/* Back Button in ID Card */
+#id-card-back-btn {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#id-card-back-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Top Back Button for Results and ID Card */
+.top-back-btn {
+  display: block;
+  margin: 10px auto 20px auto;
+  padding: 12px 25px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+  width: fit-content;
+}
+
+.top-back-btn:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Force full viewport fit, no scroll */
+.student-results,
+#id-card-section {
+  height: calc(100vh - 130px); /* header + padding */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 15px;
+}
+
+.student-results table {
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.id-card {
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+.id-card-gallery {
+  flex-wrap: wrap;
+}
+
+/* ---------- Dynamic Dashboard Adjustments ---------- */
+
+/* Reduce header height when viewing Results or ID */
+body.viewing-section header.dashboard-header {
+  padding: 10px 20px;
+}
+
+body.viewing-section .header-left .school-logo {
+  width: 80px;
+  height: auto;
+}
+
+body.viewing-section .student-profile {
+  width: 80px;
+  height: 80px;
+  border-width: 2px;
+}
+
+/* Back buttons on top */
+#results-back-btn,
+#id-card-back-btn {
+  display: block;
+  margin: 10px auto 20px auto;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px 25px;
+  background-color: #ff7f50;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#results-back-btn:hover,
+#id-card-back-btn:hover {
+  background-color: #ff5722;
+  transform: scale(1.05);
+}
+
+/* ID card unique style */
+#id-card-section .id-card {
+  max-width: 450px;
+  margin: 20px auto;
+  padding: 25px 20px;
+  background: linear-gradient(135deg, #e0f7fa, #80deea);
+  border-radius: 20px;
+  border-left: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+#id-card-section .id-card h2 {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+#id-card-section .id-card p {
+  margin: 4px 0;
+  font-size: 16px;
+  color: #006064;
+}
+
+#id-card-gallery {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+#id-card-gallery img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid #006064;
+}
+
+/* Fit everything on screen: no scrolling */
+.student-results,
+#id-card-section {
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+/* Remove extra spacing from results table */
+.student-results table {
+  font-size: 15px;
+}
+
+.student-results th,
+.student-results td {
+  padding: 10px 8px;
+}

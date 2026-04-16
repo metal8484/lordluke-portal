@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard</title>
+
+    <link rel="stylesheet" href="portal.css" />
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const supabaseUrl = "https://iupwqyksdntdccnzoxrb.supabase.co";
+      const supabaseKey = "YOUR_SUPABASE_KEY";
+      const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
+  </head>
+
+  <body>
+    <div class="dashboard-container">
+      <!-- HEADER -->
+      <header class="dashboard-header">
+        <div class="header-left">
+          <img src="images/image.png" class="school-logo" />
+        </div>
+
+        <div class="header-center">
+          <h1 id="student-name-header">Welcome</h1>
+        </div>
+
+        <div class="header-right">
+          <img
+            id="student-profile"
+            class="student-profile"
+            src="images/image.png"
+          />
+          <button id="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <!-- MAIN -->
+      <main id="main-dashboard">
+        <section class="school-news">
+          <h2>School News</h2>
+          <ul>
+            <li>📢 Exams coming soon</li>
+            <li>🎉 Sports day announced</li>
+            <li>📚 Library updated</li>
+          </ul>
+        </section>
+
+        <section class="student-info">
+          <h2>Student Info</h2>
+          <p id="student-id-display"></p>
+          <p id="student-class"></p>
+        </section>
+
+        <div class="toggle-buttons">
+          <button id="go-results">View Results</button>
+          <button id="go-id-card">View ID Card</button>
+        </div>
+      </main>
+
+      <!-- RESULTS -->
+      <section id="results-page" style="display: none">
+        <button id="results-back-btn">⬅ Back</button>
+
+        <div class="student-results">
+          <h2>Results</h2>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Score</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+
+          <p>Average: <span id="average-score"></span></p>
+          <p>Performance: <span id="performance-level"></span></p>
+        </div>
+      </section>
+
+      <!-- ID CARD -->
+      <section id="id-card-page" style="display: none">
+        <button id="id-card-back-btn">⬅ Back</button>
+
+        <div class="id-card">
+          <img id="id-card-img" src="images/image.png" />
+          <h2 id="id-card-name"></h2>
+          <p id="id-card-id"></p>
+          <p id="id-card-class"></p>
+        </div>
+      </section>
+    </div>
+
+    <script src="dashboard.js"></script>
+  </body>
+</html>
