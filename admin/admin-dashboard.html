@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard</title>
+
+    <!-- CSS FIRST -->
+    <link rel="stylesheet" href="admin.css" />
+
+    <!-- SUPABASE FIRST -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- YOUR JS LAST (VERY IMPORTANT) -->
+    <script defer src="admin-dashboard.js"></script>
+  </head>
+
+  <body>
+    <h1>Admin Dashboard</h1>
+
+    <button id="logout-btn">Logout</button>
+
+    <div class="dashboard-container">
+      <!-- STUDENTS -->
+      <div class="centered">
+        <form id="add-student-form">
+          <h3>Add Student</h3>
+          <input id="student-name" placeholder="Full Name" required />
+          <input id="student-id" placeholder="Student ID" required />
+          <input id="student-class" placeholder="Class" required />
+          <input id="student-email" placeholder="Email" required />
+          <input
+            id="student-password"
+            type="password"
+            placeholder="Password"
+            required
+          />
+          <button>Add Student</button>
+        </form>
+
+        <table id="students-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>ID</th>
+              <th>Class</th>
+              <th>Email</th>
+              <th>Password</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="centered">
+        <form id="add-result-form">
+          <h3>Add Result</h3>
+          <input id="result-student-id" placeholder="Student ID" required />
+          <input id="result-subject" placeholder="Subject" required />
+          <input id="result-score" type="number" placeholder="Score" required />
+          <button>Add Result</button>
+        </form>
+
+        <table id="results-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Subject</th>
+              <th>Score</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- ADMINS -->
+      <div class="centered">
+        <form id="add-admin-form">
+          <h3>Add Admin</h3>
+          <input id="admin-username" placeholder="Username" required />
+          <input id="admin-email" placeholder="Email" required />
+          <input
+            id="admin-password"
+            type="password"
+            placeholder="Password"
+            required
+          />
+          <button>Add Admin</button>
+        </form>
+
+        <table id="admins-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="admin-dashboard.js"></script>
+  </body>
+</html>

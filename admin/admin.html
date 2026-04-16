@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="admin.css" />
+    <style>
+      /* Inline style for the back button to make it bold and white */
+      #back-btn {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px 12px;
+        font-weight: bold;
+        color: white;
+        background-color: #000; /* black background to make it visible */
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      #back-btn:hover {
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body class="login-page">
+    <h2>Admin Login</h2>
+    <form id="login-form">
+      <label>Email:</label>
+      <input type="email" id="login-email" placeholder="Email" required />
+      <label>Password:</label>
+      <input
+        type="password"
+        id="login-password"
+        placeholder="Password"
+        required
+      />
+      <button type="submit">Login</button>
+      <p id="login-message"></p>
+    </form>
+
+    <!-- Back Button to Website -->
+    <a href="../index.html" id="back-btn">Back to Website</a>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const loginForm = document.getElementById("login-form");
+        const loginMessage = document.getElementById("login-message");
+
+        let admins = JSON.parse(localStorage.getItem("admins")) || [];
+
+        // Ensure central admin exists
+        if (!admins.find((a) => a.username === "central")) {
+          admins.push({
+            username: "central",
+            email: "central@school.com",
+            password: "central123",
+            role: "central",
+            loggedIn: false,
+          });
+          localStorage.setItem("admins", JSON.stringify(admins));
+        }
+
+        loginForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("login-email").value.trim();
+          const password = document
+            .getElementById("login-password")
+            .value.trim();
+
+          const admin = admins.find(
+            (a) => a.email === email && a.password === password,
+          );
+
+          if (admin) {
+            localStorage.setItem("adminLoggedIn", "true");
+            localStorage.setItem("currentAdmin", JSON.stringify(admin));
+
+            loginMessage.style.color = "green";
+            loginMessage.textContent = "Login successful! Redirecting...";
+
+            setTimeout(() => {
+              window.location.href = "admin-dashboard.html";
+            }, 1000);
+          } else {
+            loginMessage.style.color = "red";
+            loginMessage.textContent = "Invalid email or password!";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

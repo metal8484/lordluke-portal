@@ -400,3 +400,16 @@ p {
   border: 4#f0e4a9;
   border-radius: 10px;
 }
+
+html,
+body {
+  overflow-x: hidden;
+}
+body {
+  width: 100%;
+}
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
