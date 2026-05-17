@@ -1,5 +1,8 @@
 <!doctype html>
 <html lang="en">
+  <!-- ========================================================= -->
+  <!-- 🟦 SECTION 1: META + PAGE CONFIG -->
+  <!-- ========================================================= -->
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,7 +10,9 @@
 
     <link rel="stylesheet" href="portal.css" />
 
-    <!-- Supabase -->
+    <!-- ========================================================= -->
+    <!-- 🟦 SECTION 2: SUPABASE INIT SCRIPT -->
+    <!-- ========================================================= -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       const supabaseUrl = "https://iupwqyksdntdccnzoxrb.supabase.co";
@@ -17,8 +22,13 @@
   </head>
 
   <body>
+    <!-- ========================================================= -->
+    <!-- 🟦 SECTION 3: MAIN CONTAINER -->
+    <!-- ========================================================= -->
     <div class="dashboard-container">
-      <!-- HEADER -->
+      <!-- ========================================================= -->
+      <!-- 🟦 SECTION 4: HEADER AREA -->
+      <!-- ========================================================= -->
       <header class="dashboard-header">
         <div class="header-left">
           <img src="images/image.png" class="school-logo" />
@@ -38,8 +48,11 @@
         </div>
       </header>
 
-      <!-- MAIN -->
+      <!-- ========================================================= -->
+      <!-- 🟦 SECTION 5: MAIN DASHBOARD AREA -->
+      <!-- ========================================================= -->
       <main id="main-dashboard">
+        <!-- SCHOOL NEWS -->
         <section class="school-news">
           <h2>School News</h2>
           <ul>
@@ -49,19 +62,53 @@
           </ul>
         </section>
 
+        <!-- STUDENT INFO -->
         <section class="student-info">
           <h2>Student Info</h2>
           <p id="student-id-display"></p>
           <p id="student-class"></p>
         </section>
 
+        <!-- TOGGLES -->
         <div class="toggle-buttons">
           <button id="go-results">View Results</button>
           <button id="go-id-card">View ID Card</button>
         </div>
+
+        <!-- ========================================================= -->
+        <!-- 🟢 SECTION 5B: FEES SYSTEM (FULL CLEAN INTEGRATION) -->
+        <!-- ========================================================= -->
+        <section class="student-fees">
+          <h2>School Fees Information</h2>
+
+          <p>
+            <strong>Amount Due:</strong> ₦<span id="student-amount-due">0</span>
+          </p>
+          <p><strong>Balance:</strong> ₦<span id="student-balance">0</span></p>
+          <p><strong>Term:</strong> <span id="student-term">---</span></p>
+          <p><strong>Session:</strong> <span id="student-session">---</span></p>
+
+          <h3>Payment History</h3>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Amount Paid</th>
+                <th>Term</th>
+                <th>Session</th>
+                <th>Balance After</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+
+            <tbody id="paymentHistoryBody"></tbody>
+          </table>
+        </section>
       </main>
 
-      <!-- RESULTS -->
+      <!-- ========================================================= -->
+      <!-- 🟦 SECTION 6: RESULTS PAGE -->
+      <!-- ========================================================= -->
       <section id="results-page" style="display: none">
         <button id="results-back-btn">⬅ Back</button>
 
@@ -76,6 +123,7 @@
                 <th>Grade</th>
               </tr>
             </thead>
+
             <tbody></tbody>
           </table>
 
@@ -84,7 +132,9 @@
         </div>
       </section>
 
-      <!-- ID CARD -->
+      <!-- ========================================================= -->
+      <!-- 🟦 SECTION 7: ID CARD PAGE -->
+      <!-- ========================================================= -->
       <section id="id-card-page" style="display: none">
         <button id="id-card-back-btn">⬅ Back</button>
 
@@ -97,6 +147,9 @@
       </section>
     </div>
 
+    <!-- ========================================================= -->
+    <!-- 🟦 SECTION 8: DASHBOARD JS LINK -->
+    <!-- ========================================================= -->
     <script src="dashboard.js"></script>
   </body>
 </html>

@@ -1,114 +1,156 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // ================= SUPABASE INIT =================
+document.addEventListener("DOMContentLoaded", async () => {
+  // =========================================================
+  // 🟦 SECTION 1: SUPABASE INIT
+  // =========================================================
   const supabaseUrl = "https://iupwqyksdntdccnzoxrb.supabase.co";
   const supabaseKey = "sb_publishable_hUYF2MqC5s12fi-3mRoSng_-pwwzK2V";
   const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // ================= GET STUDENT =================
-  const student = JSON.parse(localStorage.getItem("currentStudent"));
+  let user = null;
+  let student = null;
 
-  if (!student) {
-    window.location.href = "login.html";
-    return;
+  // =========================================================
+  // 🟦 SECTION 2: INIT USER AUTH
+  // =========================================================
+  async function initUser() {
+    const { data, error } = await supabaseClient.auth.getUser();
+
+    if (error || !data.user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    user = data.user;
+
+    const { data: studentData, error: studentError } = await supabaseClient
+      .from("students")
+      .select("*")
+      .eq("auth_user_id", user.id)
+      .single();
+
+    if (studentError) {
+      console.log("Student fetch error:", studentError.message);
+      return;
+    }
+
+    student = studentData;
+
+    loadStudentUI();
+    loadResults();
+    loadStudentFees();
+    loadPaymentHistory();
   }
 
-  console.log("STUDENT:", student);
+  // =========================================================
+  // 🟦 SECTION 3: STUDENT UI
+  // =========================================================
+  function loadStudentUI() {
+    const nameEl = document.getElementById("student-name-header");
+    const idEl = document.getElementById("student-id-display");
+    const classEl = document.getElementById("student-class");
+    const imgEl = document.getElementById("student-profile");
 
-  // ================= HEADER =================
-  document.getElementById("student-name-header").textContent =
-    "Welcome, " + student.name;
+    if (nameEl)
+      nameEl.textContent = "Welcome, " + (student?.name || user.email);
 
-  document.getElementById("student-id-display").textContent =
-    "ID: " + student.student_id;
+    if (idEl) idEl.textContent = "ID: " + student.auth_user_id;
+    if (classEl) classEl.textContent = student?.class || "Class not set";
+    if (imgEl) imgEl.src = "images/image.png";
+  }
 
-  document.getElementById("student-class").textContent =
-    "Class: " + student.class;
+  // =========================================================
+  // 🟦 SECTION 4: LOGOUT (SAFE)
+  // =========================================================
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = "login.html";
+    });
+  }
 
-  document.getElementById("student-profile").src = "images/image.png";
+  // =========================================================
+  // 🟦 SECTION 5: NAVIGATION (SAFE FIXED)
+  // =========================================================
+  function safe(id, fn) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("click", fn);
+  }
 
-  // ================= LOGOUT =================
-  document.getElementById("logout-btn").addEventListener("click", () => {
-    localStorage.removeItem("currentStudent");
-    window.location.href = "login.html";
-  });
-
-  // ================= NAVIGATION =================
   const main = document.getElementById("main-dashboard");
-  const results = document.getElementById("results-page");
+  const resultsPage = document.getElementById("results-page");
   const idCard = document.getElementById("id-card-page");
 
-  document.getElementById("go-results").addEventListener("click", () => {
-    main.style.display = "none";
-    results.style.display = "block";
+  safe("go-results", () => {
+    if (main) main.style.display = "none";
+    if (resultsPage) resultsPage.style.display = "block";
     loadResults();
   });
 
-  document.getElementById("go-id-card").addEventListener("click", () => {
-    main.style.display = "none";
-    idCard.style.display = "block";
+  safe("go-id-card", () => {
+    if (main) main.style.display = "none";
+    if (idCard) idCard.style.display = "block";
 
-    document.getElementById("id-card-name").textContent = student.name;
+    document.getElementById("id-card-name").textContent =
+      student?.name || user.email;
+
     document.getElementById("id-card-id").textContent =
-      "ID: " + student.student_id;
+      "ID: " + student.auth_user_id;
+
     document.getElementById("id-card-class").textContent =
-      "Class: " + student.class;
+      student?.class || "Class not set";
   });
 
-  document.getElementById("results-back-btn").addEventListener("click", () => {
-    results.style.display = "none";
-    main.style.display = "block";
+  safe("results-back-btn", () => {
+    if (resultsPage) resultsPage.style.display = "none";
+    if (main) main.style.display = "block";
   });
 
-  document.getElementById("id-card-back-btn").addEventListener("click", () => {
-    idCard.style.display = "none";
-    main.style.display = "block";
+  safe("id-card-back-btn", () => {
+    if (idCard) idCard.style.display = "none";
+    if (main) main.style.display = "block";
   });
 
-  // ================= LOAD RESULTS (FIXED SUPABASE) =================
+  // =========================================================
+  // 🟦 SECTION 6: RESULTS SYSTEM
+  // =========================================================
   async function loadResults() {
-    const tableBody = document.querySelector("tbody");
+    const tableBody = document.querySelector("#results-page tbody");
     const avgEl = document.getElementById("average-score");
     const perfEl = document.getElementById("performance-level");
 
-    if (!tableBody) return;
+    if (!tableBody || !student) return;
 
     tableBody.innerHTML = "";
 
-    const { data, error } = await supabaseClient
+    const { data } = await supabaseClient
       .from("results")
       .select("*")
-      .eq("student_id", student.student_id);
-
-    console.log("RESULTS FROM SUPABASE:", data);
-    console.log("ERROR:", error);
-
-    if (error) {
-      console.log("Supabase error:", error.message);
-      return;
-    }
+      .eq("student_id", student.auth_user_id);
 
     const resultsData = data || [];
 
     let total = 0;
 
     resultsData.forEach((r) => {
-      total += Number(r.score);
+      const score = Number(r.score);
+      total += score;
 
       const grade =
-        r.score >= 70
+        score >= 70
           ? "A"
-          : r.score >= 60
+          : score >= 60
             ? "B"
-            : r.score >= 50
+            : score >= 50
               ? "C"
-              : r.score >= 40
+              : score >= 40
                 ? "D"
                 : "F";
 
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${r.subject}</td>
-        <td>${r.score}</td>
+        <td>${score}</td>
         <td>${grade}</td>
       `;
       tableBody.appendChild(row);
@@ -120,20 +162,91 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (avgEl) avgEl.textContent = avg;
 
-    const perf =
-      avg >= 70
-        ? "Excellent"
-        : avg >= 60
-          ? "Very Good"
-          : avg >= 50
-            ? "Good"
-            : avg >= 40
-              ? "Pass"
-              : "Fail";
-
-    if (perfEl) perfEl.textContent = perf;
+    if (perfEl) {
+      perfEl.textContent =
+        avg >= 70
+          ? "Excellent"
+          : avg >= 60
+            ? "Very Good"
+            : avg >= 50
+              ? "Good"
+              : avg >= 40
+                ? "Pass"
+                : "Fail";
+    }
   }
 
-  // ================= START =================
-  loadResults();
+  // =========================================================
+  // 🟢 SECTION 7: FEES SYSTEM (FIXED + FUTURE SAFE)
+  // =========================================================
+  async function loadStudentFees() {
+    if (!student) return;
+
+    const { data, error } = await supabaseClient
+      .from("fees_settings")
+      .select("*")
+      .eq("student_id", student.auth_user_id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log("Fees load error:", error.message);
+      return;
+    }
+
+    if (!data || data.length === 0) return;
+
+    const fee = data[0];
+
+    const set = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    };
+
+    set("student-balance", fee.balance ?? 0);
+    set("student-term", fee.term ?? "---");
+    set("student-session", fee.session ?? "---");
+    set("student-amount-due", fee.amount_due ?? 0);
+  }
+
+  // =========================================================
+  // 🟢 SECTION 8: PAYMENT HISTORY
+  // =========================================================
+  async function loadPaymentHistory() {
+    if (!student) return;
+
+    const { data, error } = await supabaseClient
+      .from("fees_payments")
+      .select("*")
+      .eq("student_id", student.auth_user_id)
+      .order("timestamp", { ascending: false });
+
+    if (error) {
+      console.log("Payment history error:", error.message);
+      return;
+    }
+
+    const tableBody = document.getElementById("paymentHistoryBody");
+    if (!tableBody) return;
+
+    tableBody.innerHTML = "";
+
+    (data || []).forEach((p) => {
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${p.amount_paid}</td>
+        <td>${p.term}</td>
+        <td>${p.session}</td>
+        <td>${p.balance_after}</td>
+        <td>${new Date(p.timestamp).toLocaleString()}</td>
+      `;
+
+      tableBody.appendChild(row);
+    });
+  }
+
+  // =========================================================
+  // 🟦 SECTION 9: START APP
+  // =========================================================
+  initUser();
 });

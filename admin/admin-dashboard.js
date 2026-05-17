@@ -1,29 +1,109 @@
 document.addEventListener("DOMContentLoaded", async function () {
-  // ================= SUPABASE INIT =================
+  // =========================================================
+  // 🟦 SUPABASE
+  // =========================================================
   const supabaseUrl = "https://iupwqyksdntdccnzoxrb.supabase.co";
   const supabaseKey = "sb_publishable_hUYF2MqC5s12fi-3mRoSng_-pwwzK2V";
-
   const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // ================= ELEMENTS =================
+  // =========================================================
+  // 🧠 GLOBAL STATE
+  // =========================================================
+  const AppState = {
+    editStudentId: null,
+    editResultId: null,
+    editAdminId: null,
+  };
+
+  // =========================================================
+  // DOM ELEMENTS
+  // =========================================================
   const logoutBtn = document.getElementById("logout-btn");
+
   const studentsTable = document.querySelector("#students-table tbody");
   const resultsTable = document.querySelector("#results-table tbody");
   const adminsTable = document.querySelector("#admins-table tbody");
 
-  // ================= PROTECTION =================
+  // =========================================================
+  // LOGIN PROTECTION
+  // =========================================================
+  const loginForm = document.getElementById("login-form");
+
   const loggedAdmin = JSON.parse(localStorage.getItem("currentAdmin"));
-  if (!loggedAdmin) {
+
+  if (!loggedAdmin && !loginForm) {
     window.location.href = "admin.html";
   }
 
-  // ================= LOGOUT =================
-  logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("currentAdmin");
-    window.location.href = "admin.html";
-  });
+  // =========================================================
+  // LOGOUT
+  // =========================================================
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("currentAdmin");
+      window.location.href = "admin.html";
+    });
+  }
 
-  // ================= LOAD ALL =================
+  // =========================================================
+  // LOAD STUDENT DROPDOWN (FIXED)
+  // =========================================================
+  async function loadStudentDropdown() {
+    console.log("🔵 Loading students...");
+
+    const resultSelect = document.getElementById("result-student-id");
+    const feesSelect = document.getElementById("student_id");
+    const paymentSelect = document.getElementById("payment_student_id");
+
+    const { data, error } = await supabaseClient
+      .from("students")
+      .select("name, auth_user_id");
+
+    if (error) {
+      console.log("❌ Supabase error:", error.message);
+      return;
+    }
+
+    const students = data || [];
+
+    // ================= RESULT DROPDOWN =================
+    if (resultSelect) {
+      resultSelect.innerHTML = `<option value="">Select Student</option>`;
+      students.forEach((s) => {
+        const option = document.createElement("option");
+        option.value = s.auth_user_id;
+        option.textContent = s.name;
+        resultSelect.appendChild(option);
+      });
+    }
+
+    // ================= FEES DROPDOWN =================
+    if (feesSelect) {
+      feesSelect.innerHTML = `<option value="">Select Student</option>`;
+      students.forEach((s) => {
+        const option = document.createElement("option");
+        option.value = s.auth_user_id;
+        option.textContent = s.name;
+        feesSelect.appendChild(option);
+      });
+    }
+
+    // ================= PAYMENT DROPDOWN =================
+    if (paymentSelect) {
+      paymentSelect.innerHTML = `<option value="">Select Student</option>`;
+      students.forEach((s) => {
+        const option = document.createElement("option");
+        option.value = s.auth_user_id;
+        option.textContent = s.name;
+        paymentSelect.appendChild(option);
+      });
+    }
+
+    console.log("✅ All dropdowns loaded");
+  }
+  // =========================================================
+  // LOAD ALL DATA
+  // =========================================================
   async function loadAll() {
     const { data: students } = await supabaseClient
       .from("students")
@@ -31,251 +111,462 @@ document.addEventListener("DOMContentLoaded", async function () {
     const { data: results } = await supabaseClient.from("results").select("*");
     const { data: admins } = await supabaseClient.from("admins").select("*");
 
-    renderStudents(students || []);
-    renderResults(results || []);
-    renderAdmins(admins || []);
-  }
-
-  // ================= RENDER STUDENTS =================
-  function renderStudents(data) {
+    // STUDENTS
     studentsTable.innerHTML = "";
-    data.forEach((s) => {
+    (students || []).forEach((s) => {
       studentsTable.innerHTML += `
-        <tr>
+        <tr class="student-row"
+            data-id="${s.auth_user_id}"
+            data-name="${s.name}"
+            data-class="${s.class}">
           <td>${s.name}</td>
-          <td>${s.student_id}</td>
+          <td>${s.auth_user_id}</td>
           <td>${s.class}</td>
-          <td>${s.email}</td>
-          <td>${s.password}</td>
           <td>
-            <button class="edit-student-btn" data-id="${s.id}">Edit</button>
-            <button class="delete-student-btn" data-id="${s.id}">Delete</button>
+            <button class="delete-student-btn" data-id="${s.auth_user_id}">
+              Delete
+            </button>
           </td>
         </tr>
       `;
     });
-  }
 
-  // ================= RENDER RESULTS =================
-  function renderResults(data) {
+    // RESULTS
     resultsTable.innerHTML = "";
-    data.forEach((r) => {
+    (results || []).forEach((r) => {
       resultsTable.innerHTML += `
-        <tr>
+        <tr class="result-row"
+            data-id="${r.id}"
+            data-student="${r.student_id}"
+            data-subject="${r.subject}"
+            data-score="${r.score}">
           <td>${r.student_id}</td>
           <td>${r.subject}</td>
           <td>${r.score}</td>
           <td>
-            <button class="edit-result-btn" data-id="${r.id}">Edit</button>
-            <button class="delete-result-btn" data-id="${r.id}">Delete</button>
+            <button class="delete-result-btn" data-id="${r.id}">
+              Delete
+            </button>
           </td>
         </tr>
       `;
     });
-  }
 
-  // ================= RENDER ADMINS =================
-  function renderAdmins(data) {
+    // ADMINS
     adminsTable.innerHTML = "";
-    data.forEach((a) => {
+    (admins || []).forEach((a) => {
       adminsTable.innerHTML += `
-        <tr>
+        <tr class="admin-row"
+            data-id="${a.id}"
+            data-username="${a.username}"
+            data-email="${a.email}">
           <td>${a.username}</td>
           <td>${a.email}</td>
           <td>
-            <button class="edit-admin-btn" data-id="${a.id}">Edit</button>
-            <button class="delete-admin-btn" data-id="${a.id}">Delete</button>
+            <button class="delete-admin-btn" data-id="${a.id}">
+              Delete
+            </button>
           </td>
         </tr>
       `;
     });
   }
 
-  // ================= ADD STUDENT =================
-  document
-    .getElementById("add-student-form")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById("student-name").value.trim();
-      const student_id = document.getElementById("student-id").value.trim();
-      const cls = document.getElementById("student-class").value.trim();
-      const email = document.getElementById("student-email").value.trim();
-      const password = document.getElementById("student-password").value.trim();
-
-      await supabaseClient
-        .from("students")
-        .insert([{ name, student_id, class: cls, email, password }]);
-
-      e.target.reset();
-      loadAll();
-    });
-
-  // ================= ADD RESULT =================
-  document
-    .getElementById("add-result-form")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const student_id = document
-        .getElementById("result-student-id")
-        .value.trim();
-      const subject = document.getElementById("result-subject").value.trim();
-      const score = document.getElementById("result-score").value.trim();
-
-      await supabaseClient
-        .from("results")
-        .insert([{ student_id, subject, score }]);
-
-      e.target.reset();
-      loadAll();
-    });
-
-  // ================= ADD ADMIN =================
-  document
-    .getElementById("add-admin-form")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const username = document.getElementById("admin-username").value.trim();
-      const email = document.getElementById("admin-email").value.trim();
-      const password = document.getElementById("admin-password").value.trim();
-
-      await supabaseClient
-        .from("admins")
-        .insert([{ username, email, password }]);
-
-      e.target.reset();
-      loadAll();
-    });
-
-  // ================= DELETE STUDENT =================
+  // =========================================================
+  // ✏️ STUDENT EDIT (FIXED - NO DUPLICATE LISTENERS)
+  // =========================================================
   studentsTable.addEventListener("click", async (e) => {
+    const row = e.target.closest(".student-row");
+    if (!row) return;
+
     if (e.target.classList.contains("delete-student-btn")) {
       await supabaseClient
         .from("students")
         .delete()
-        .eq("id", e.target.dataset.id);
+        .eq("auth_user_id", e.target.dataset.id);
+
       loadAll();
+      loadStudentDropdown();
+      return;
     }
+
+    document.getElementById("student-name").value = row.dataset.name;
+    document.getElementById("student-class").value = row.dataset.class;
+
+    AppState.editStudentId = row.dataset.id;
   });
 
-  // ================= DELETE RESULT =================
+  // =========================================================
+  // ✏️ RESULT EDIT (FIXED)
+  // =========================================================
   resultsTable.addEventListener("click", async (e) => {
+    const row = e.target.closest(".result-row");
+    if (!row) return;
+
     if (e.target.classList.contains("delete-result-btn")) {
       await supabaseClient
         .from("results")
         .delete()
         .eq("id", e.target.dataset.id);
       loadAll();
-    }
-  });
-
-  // ================= DELETE ADMIN (FIXED) =================
-  adminsTable.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("delete-admin-btn")) return;
-
-    const id = e.target.dataset.id;
-    const row = e.target.closest("tr");
-
-    const email = row.children[1].textContent;
-
-    // ✅ ONLY CENTRAL ADMIN PROTECTION
-    if (email === "central@school.com") {
-      alert("Central admin cannot be deleted");
       return;
     }
 
-    await supabaseClient.from("admins").delete().eq("id", id);
+    document.getElementById("result-student-id").value = row.dataset.student;
+    document.getElementById("result-subject").value = row.dataset.subject;
+    document.getElementById("result-score").value = row.dataset.score;
 
-    loadAll();
+    AppState.editResultId = row.dataset.id;
   });
 
-  // ================= EDIT STUDENT =================
-  studentsTable.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("edit-student-btn")) return;
+  // =========================================================
+  // ✏️ ADMIN EDIT (FIXED)
+  // =========================================================
+  adminsTable.addEventListener("click", async (e) => {
+    const row = e.target.closest(".admin-row");
+    if (!row) return;
 
-    const row = e.target.closest("tr");
+    if (e.target.classList.contains("delete-admin-btn")) {
+      await supabaseClient
+        .from("admins")
+        .delete()
+        .eq("id", e.target.dataset.id);
+      loadAll();
+      return;
+    }
 
-    const oldStudentId = row.children[1].textContent;
+    document.getElementById("admin-username").value = row.dataset.username;
+    document.getElementById("admin-email").value = row.dataset.email;
 
-    const name = prompt("Edit Name", row.children[0].textContent);
-    const student_id = prompt("Edit Student ID", row.children[1].textContent);
-    const cls = prompt("Edit Class", row.children[2].textContent);
-    const email = prompt("Edit Email", row.children[3].textContent);
-    const password = prompt("Edit Password", row.children[4].textContent);
+    AppState.editAdminId = row.dataset.id;
+  });
 
-    if (!name || !student_id || !cls || !email || !password) return;
+  // =========================================================
+  // STUDENT ADD / EDIT
+  // =========================================================
+  document
+    .getElementById("add-student-form")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const { data, error } = await supabaseClient
-      .from("students")
-      .update({
-        name,
+      const name = document.getElementById("student-name").value.trim();
+      const className = document.getElementById("student-class").value.trim();
+      const password = document.getElementById("student-password").value;
+
+      // safer email format
+      const safeName = name.toLowerCase().replace(/\s+/g, "");
+      const email = document.getElementById("student-email").value.trim();
+
+      if (AppState.editStudentId) {
+        await supabaseClient
+          .from("students")
+          .update({ name, class: className })
+          .eq("auth_user_id", AppState.editStudentId);
+
+        AppState.editStudentId = null;
+      } else {
+        const { data: authData, error: authError } =
+          await supabaseClient.auth.signUp({
+            email,
+            password,
+          });
+        console.log("AUTH RESULT:", authData);
+        console.log("AUTH ERROR:", authError);
+        if (authError) {
+          console.log(authError);
+          alert(authError.message);
+          return;
+        }
+
+        if (!authData?.user?.id) {
+          alert("Auth failed: no user created");
+          return;
+        }
+
+        const { error: insertError } = await supabaseClient
+          .from("students")
+          .insert([
+            {
+              name,
+              class: className,
+              auth_user_id: authData.user.id,
+            },
+          ]);
+
+        if (insertError) {
+          console.log(insertError);
+          alert(insertError.message);
+          return;
+        }
+      }
+
+      e.target.reset();
+      loadAll();
+      loadStudentDropdown();
+    });
+
+  // =========================================================
+  // RESULT ADD / EDIT
+  // =========================================================
+  document
+    .getElementById("add-result-form")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const student_id = document.getElementById("result-student-id").value;
+      const subject = document.getElementById("result-subject").value;
+      const score = document.getElementById("result-score").value;
+
+      if (AppState.editResultId) {
+        await supabaseClient
+          .from("results")
+          .update({ student_id, subject, score })
+          .eq("id", AppState.editResultId);
+
+        AppState.editResultId = null;
+      } else {
+        await supabaseClient
+          .from("results")
+          .insert([{ student_id, subject, score }]);
+      }
+
+      e.target.reset();
+      loadAll();
+    });
+
+  // =========================================================
+  // ADMIN ADD / EDIT
+  // =========================================================
+  document
+    .getElementById("add-admin-form")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById("admin-username").value;
+      const email = document.getElementById("admin-email").value;
+      const password = document.getElementById("admin-password").value;
+
+      if (AppState.editAdminId) {
+        await supabaseClient
+          .from("admins")
+          .update({ username, email })
+          .eq("id", AppState.editAdminId);
+
+        AppState.editAdminId = null;
+      } else {
+        await supabaseClient
+          .from("admins")
+          .insert([{ username, email, password }]);
+      }
+
+      e.target.reset();
+      loadAll();
+    });
+
+  // =========================================================
+  // 💰 FEES SYSTEM (FIXED + STABLE)
+  // =========================================================
+  async function addFee() {
+    const student_id = document.getElementById("student_id").value;
+    const term = document.getElementById("term").value;
+    const session = document.getElementById("session").value;
+    const amount_due = Number(document.getElementById("amount_due").value);
+
+    const { error } = await supabaseClient.from("fees_settings").insert([
+      {
         student_id,
-        class: cls,
-        email,
-        password,
-      })
-      .eq("student_id", oldStudentId); // 🔥 IMPORTANT FIX
-
-    console.log("UPDATE RESULT:", data, error);
+        term,
+        session,
+        amount_due,
+        amount_paid: 0,
+        balance: amount_due,
+        status: "Unpaid",
+      },
+    ]);
 
     if (error) {
-      alert("Update failed: " + error.message);
+      console.log(error);
+      alert(error.message);
       return;
     }
 
-    loadAll();
-  });
-  // ================= EDIT RESULT =================
-  resultsTable.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("edit-result-btn")) return;
+    loadFees();
+  }
 
-    const row = e.target.closest("tr");
-    const id = e.target.dataset.id;
+  async function loadFees() {
+    const { data } = await supabaseClient.from("fees_settings").select("*");
 
-    const subject = prompt("Subject", row.children[1].textContent);
-    const score = prompt("Score", row.children[2].textContent);
+    const tableBody = document.getElementById("feesBody");
+    if (!tableBody) return;
 
-    if (!subject || !score) return;
+    tableBody.innerHTML = "";
 
-    await supabaseClient
-      .from("results")
-      .update({ subject, score })
-      .eq("id", id);
+    (data || []).forEach((fee) => {
+      tableBody.innerHTML += `
+        <tr>
+          <td>${fee.student_id}</td>
+          <td>${fee.term}</td>
+          <td>${fee.session}</td>
+          <td>${fee.amount_due}</td>
+          <td>${fee.amount_paid}</td>
+          <td>${fee.balance}</td>
+          <td>${fee.status}</td>
+        </tr>
+      `;
+    });
+  }
 
-    loadAll();
-  });
+  const addFeeBtn = document.getElementById("addFeeBtn");
+  if (addFeeBtn) {
+    addFeeBtn.addEventListener("click", addFee);
+  }
+  async function recordPayment() {
+    const student_id = document.getElementById("payment_student_id").value;
+    const amount_paid = Number(document.getElementById("payment_amount").value);
 
-  // ================= EDIT ADMIN (FIXED) =================
-  adminsTable.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("edit-admin-btn")) return;
+    const term = document.getElementById("term")?.value || "Current";
+    const session = document.getElementById("session")?.value || "Current";
 
-    const row = e.target.closest("tr");
-    const id = e.target.dataset.id;
-
-    const email = row.children[1].textContent;
-
-    // ✅ ONLY CENTRAL ADMIN PROTECTION FIXED
-    if (email === "central@school.com") {
-      alert("Central admin cannot be edited");
+    if (!student_id || !amount_paid) {
+      alert("Select student and enter amount");
       return;
     }
 
-    const username = prompt("Username", row.children[0].textContent);
-    const newEmail = prompt("Email", row.children[1].textContent);
-    const password = prompt("Password", "");
+    // =====================================================
+    // FIND STUDENT FEE RECORD
+    // =====================================================
+    const { data: feeData, error: feeError } = await supabaseClient
+      .from("fees_settings")
+      .select("*")
+      .eq("student_id", student_id)
+      .order("id", { ascending: false })
+      .limit(1)
+      .single();
 
-    if (!username || !newEmail || !password) return;
+    if (feeError || !feeData) {
+      console.log(feeError);
+      alert("Fee record not found");
+      return;
+    }
 
-    await supabaseClient
-      .from("admins")
-      .update({ username, email: newEmail, password })
-      .eq("id", id);
+    // =====================================================
+    // CALCULATIONS
+    // =====================================================
+    const currentPaid = Number(feeData.amount_paid || 0);
+    const currentDue = Number(feeData.amount_due || 0);
 
+    const newPaid = currentPaid + amount_paid;
+    const newBalance = currentDue - newPaid;
+
+    let status = "Unpaid";
+
+    if (newBalance <= 0) {
+      status = "Paid";
+    } else if (newPaid > 0) {
+      status = "Partial";
+    }
+
+    // =====================================================
+    // UPDATE FEES SETTINGS
+    // =====================================================
+    const { error: updateError } = await supabaseClient
+      .from("fees_settings")
+      .update({
+        amount_paid: newPaid,
+        balance: newBalance,
+        status: status,
+      })
+      .eq("id", feeData.id);
+
+    if (updateError) {
+      console.log(updateError);
+      alert("Payment update failed");
+      return;
+    }
+
+    // =====================================================
+    // SAVE PAYMENT HISTORY
+    // =====================================================
+    const { error: paymentError } = await supabaseClient
+      .from("fees_payments")
+      .insert([
+        {
+          student_id,
+          amount_paid,
+          term,
+          session,
+          balance_after: newBalance,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+
+    if (paymentError) {
+      console.log(paymentError);
+      alert(paymentError.message);
+      return;
+    }
+
+    // =====================================================
+    // SUCCESS
+    // =====================================================
+    alert("Payment recorded successfully");
+
+    document.getElementById("payment_amount").value = "";
+
+    loadFees();
+    loadPayments();
+  }
+
+  const recordPaymentBtn = document.getElementById("recordPaymentBtn");
+
+  if (recordPaymentBtn) {
+    recordPaymentBtn.addEventListener("click", recordPayment);
+  }
+  // =========================================================
+  // INIT
+  // =========================================================
+  async function loadPayments() {
+    console.log("🔥 Loading payment history...");
+
+    const { data, error } = await supabaseClient
+      .from("fees_payments")
+      .select("*")
+      .order("timestamp", { ascending: false });
+
+    if (error) {
+      console.log("❌ Payment load error:", error.message);
+      return;
+    }
+
+    const tableBody = document.getElementById("paymentsBody");
+
+    if (!tableBody) {
+      console.log("❌ paymentsBody not found in HTML");
+      return;
+    }
+
+    tableBody.innerHTML = "";
+
+    (data || []).forEach((p) => {
+      tableBody.innerHTML += `
+      <tr>
+        <td>${p.student_id}</td>
+        <td>${p.amount_paid}</td>
+        <td>${p.term}</td>
+        <td>${p.session}</td>
+        <td>${p.balance_after}</td>
+        <td>${new Date(p.timestamp).toLocaleString()}</td>
+      </tr>
+    `;
+    });
+
+    console.log("✅ Payment history loaded:", data?.length || 0);
+  }
+
+  setTimeout(() => {
     loadAll();
-  });
-
-  // ================= START =================
-  loadAll();
+    loadStudentDropdown();
+    loadFees();
+    loadPayments();
+  }, 300);
 });

@@ -1,5 +1,3 @@
-console.log("LOGIN JS IS WORKING");
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("login-form");
   const message = document.getElementById("login-message");
@@ -9,35 +7,40 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const studentId = document.getElementById("student-id").value.trim();
+    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
 
+    if (!email || !password) {
+      message.textContent = "❌ Please fill all fields!";
+      message.style.color = "red";
+      return;
+    }
+
     try {
-      // Supabase check
-      const { data, error } = await supabaseClient
-        .from("students")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("password", password);
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      if (error) throw error;
+      console.log("LOGIN RESULT:", { data, error });
 
-      if (data.length > 0) {
-        const student = data[0];
-        localStorage.setItem("currentStudent", JSON.stringify(student));
-
-        message.textContent = "✅ Login Successful!";
-        message.style.color = "green";
-
-        setTimeout(() => {
-          window.location.href = "student-dashboard.html";
-        }, 800);
-      } else {
-        message.textContent = "❌ Invalid ID or Password!";
+      if (error) {
+        message.textContent = "❌ " + error.message;
         message.style.color = "red";
+        return;
       }
+
+      // success
+      message.textContent = "✅ Login Successful!";
+      message.style.color = "green";
+
+      localStorage.setItem("loggedIn", "true");
+
+      setTimeout(() => {
+        window.location.href = "student-dashboard.html";
+      }, 800);
     } catch (err) {
-      console.error(err);
+      console.error("LOGIN ERROR:", err);
       message.textContent = "❌ Server error, try again!";
       message.style.color = "red";
     }
