@@ -114,7 +114,20 @@
 
         <div class="student-results">
           <h2>Results</h2>
+          <div class="result-filters">
+            <select id="filter-term">
+              <option value="">All Terms</option>
+              <option value="First Term">First Term</option>
+              <option value="Second Term">Second Term</option>
+              <option value="Third Term">Third Term</option>
+            </select>
 
+            <select id="filter-session">
+              <option value="">All Sessions</option>
+            </select>
+
+            <button id="apply-filter">Filter</button>
+          </div>
           <table>
             <thead>
               <tr>
@@ -129,6 +142,7 @@
 
           <p>Average: <span id="average-score"></span></p>
           <p>Performance: <span id="performance-level"></span></p>
+          <button id="print-result-btn">🖨️ Print Result</button>
         </div>
       </section>
 

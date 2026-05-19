@@ -130,28 +130,32 @@ document.addEventListener("DOMContentLoaded", async function () {
         </tr>
       `;
     });
-
-    // RESULTS
     resultsTable.innerHTML = "";
     (results || []).forEach((r) => {
       resultsTable.innerHTML += `
-        <tr class="result-row"
-            data-id="${r.id}"
-            data-student="${r.student_id}"
-            data-subject="${r.subject}"
-            data-score="${r.score}">
-          <td>${r.student_id}</td>
-          <td>${r.subject}</td>
-          <td>${r.score}</td>
-          <td>
-            <button class="delete-result-btn" data-id="${r.id}">
-              Delete
-            </button>
-          </td>
-        </tr>
-      `;
-    });
+    <tr class="result-row"
+        data-id="${r.id}"
+        data-student="${r.student_id}"
+        data-subject="${r.subject}"
+        data-score="${r.score}"
+        data-term="${r.term}"
+        data-session="${r.session}">
 
+      <td>${r.student_id}</td>
+      <td>${r.subject}</td>
+      <td>${r.score}</td>
+      <td>${r.term || "N/A"}</td>
+      <td>${r.session || "N/A"}</td>
+
+      <td>
+        <button class="delete-result-btn" data-id="${r.id}">
+          Delete
+        </button>
+      </td>
+
+    </tr>
+  `;
+    });
     // ADMINS
     adminsTable.innerHTML = "";
     (admins || []).forEach((a) => {
@@ -316,24 +320,44 @@ document.addEventListener("DOMContentLoaded", async function () {
       const student_id = document.getElementById("result-student-id").value;
       const subject = document.getElementById("result-subject").value;
       const score = document.getElementById("result-score").value;
+      const term = document.getElementById("result-term").value;
+      const session = document.getElementById("result-session").value.trim();
+
+      if (!session) {
+        alert("Session is required");
+        return;
+      }
+      console.log("TERM:", term);
+      console.log("SESSION:", session);
 
       if (AppState.editResultId) {
         await supabaseClient
           .from("results")
-          .update({ student_id, subject, score })
+          .update({
+            student_id,
+            subject,
+            score,
+            term,
+            session,
+          })
           .eq("id", AppState.editResultId);
 
         AppState.editResultId = null;
       } else {
-        await supabaseClient
-          .from("results")
-          .insert([{ student_id, subject, score }]);
+        await supabaseClient.from("results").insert([
+          {
+            student_id,
+            subject,
+            score,
+            term,
+            session,
+          },
+        ]);
       }
-
+      AppState.editResultId = null;
       e.target.reset();
       loadAll();
     });
-
   // =========================================================
   // ADMIN ADD / EDIT
   // =========================================================
