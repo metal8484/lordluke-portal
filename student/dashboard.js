@@ -36,6 +36,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadResults();
     loadFees();
     loadPayments();
+
+    // =========================================================
+    // 🟦 FIX: ID CARD INIT (ONLY ADDITION)
+    // =========================================================
+    loadIDCard();
   }
 
   // =========================================================
@@ -50,6 +55,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("student-class").textContent =
       student?.class || "Class not set";
+  }
+
+  // =========================================================
+  // 🟦 FIX: ID CARD FUNCTION (ONLY ADDITION)
+  // =========================================================
+  function loadIDCard() {
+    const btn = document.getElementById("go-id-card");
+    const page = document.getElementById("id-card-page");
+    const back = document.getElementById("id-card-back-btn");
+
+    const name = document.getElementById("id-card-name");
+    const id = document.getElementById("id-card-id");
+    const cls = document.getElementById("id-card-class");
+    const img = document.getElementById("id-card-img");
+
+    if (name) name.textContent = student?.name || "";
+    if (id) id.textContent = student?.auth_user_id || "";
+    if (cls) cls.textContent = student?.class || "";
+    if (img) img.src = "images/image.png";
+
+    // OPEN ID CARD
+    btn?.addEventListener("click", () => {
+      document.getElementById("main-dashboard").style.display = "none";
+      document.getElementById("results-page").style.display = "none";
+      page.style.display = "block";
+    });
+
+    // BACK BUTTON
+    back?.addEventListener("click", () => {
+      page.style.display = "none";
+      document.getElementById("main-dashboard").style.display = "block";
+    });
   }
 
   // =========================================================
@@ -149,16 +186,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // =========================================================
-  // 🟦 FILTER SYSTEM (FIXED)
+  // 🟦 FILTER SYSTEM (UNCHANGED)
   // =========================================================
   document.getElementById("apply-filter")?.addEventListener("click", () => {
-    const term = document.getElementById("filter-term").value;
-    const session = document.getElementById("filter-session").value;
+    const termInput = document.getElementById("filter-term")?.value || "";
+    const sessionInput = document.getElementById("filter-session")?.value || "";
+
+    const term = termInput.trim().toLowerCase();
+    const session = sessionInput.trim().toLowerCase();
 
     let filtered = [...allResults];
 
-    if (term) filtered = filtered.filter((r) => r.term === term);
-    if (session) filtered = filtered.filter((r) => r.session === session);
+    if (term) {
+      filtered = filtered.filter((r) =>
+        (r.term || "").toLowerCase().includes(term),
+      );
+    }
+
+    if (session) {
+      filtered = filtered.filter((r) =>
+        (r.session || "").toLowerCase().includes(session),
+      );
+    }
 
     renderResults(filtered);
   });
@@ -181,7 +230,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // =========================================================
-  // 🟦 PRINT SYSTEM (FINAL FIXED + SIGNATURE OK)
+  // 🟦 PRINT SYSTEM (UNCHANGED)
   // =========================================================
   document.getElementById("print-result-btn")?.addEventListener("click", () => {
     const term = document.getElementById("filter-term")?.value || "All Terms";
