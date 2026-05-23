@@ -4,8 +4,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   // =========================================================
   const supabaseUrl = "https://iupwqyksdntdccnzoxrb.supabase.co";
   const supabaseKey = "sb_publishable_hUYF2MqC5s12fi-3mRoSng_-pwwzK2V";
-  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+  window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
   // =========================================================
   // 🧠 GLOBAL STATE
   // =========================================================
@@ -60,7 +60,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       .select("name, auth_user_id");
 
     if (error) {
-      console.log("❌ Supabase error:", error.message);
+      console.log("NEWS INSERT ERROR:", error);
+      alert(error.message);
       return;
     }
 
@@ -286,6 +287,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           alert("Auth failed: no user created");
           return;
         }
+        const studentNumber = `LUKE/2026/${String(Date.now()).slice(-3)}`;
 
         const { error: insertError } = await supabaseClient
           .from("students")
@@ -294,9 +296,9 @@ document.addEventListener("DOMContentLoaded", async function () {
               name,
               class: className,
               auth_user_id: authData.user.id,
+              student_number: studentNumber,
             },
           ]);
-
         if (insertError) {
           console.log(insertError);
           alert(insertError.message);
@@ -592,5 +594,151 @@ document.addEventListener("DOMContentLoaded", async function () {
     loadStudentDropdown();
     loadFees();
     loadPayments();
+    loadNews();
   }, 300);
 });
+
+// =========================================================
+// 📰 NEWS SYSTEM
+// =========================================================
+
+const newsForm = document.getElementById("news-form");
+
+async function loadNews() {
+  const { data, error } = await supabaseClient
+    .from("news")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log("News load error:", error.message);
+    return;
+  }
+
+  const newsBody = document.getElementById("newsBody");
+  if (!newsBody) return;
+
+  newsBody.innerHTML = "";
+
+  (data || []).forEach((n) => {
+    newsBody.innerHTML += `
+        <tr>
+          <td>${n.title}</td>
+          <td>${n.message}</td>
+        </tr>
+      `;
+  });
+}
+
+if (newsForm) {
+  newsForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    console.log("NEWS FORM CLICKED");
+    const title = document.getElementById("news-title").value;
+    const message = document.getElementById("news-message").value;
+
+    const { error } = await supabaseClient
+      .from("news")
+      .insert([{ title, message }]);
+
+    if (error) {
+      console.log(error);
+      alert("Failed to post news");
+      return;
+    }
+
+    alert("News posted successfully");
+
+    newsForm.reset();
+    loadNews();
+  });
+}
+
+async function loadAdminNews() {
+  const { data } = await supabaseClient
+    .from("news")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const container = document.getElementById("adminNewsContainer");
+  container.innerHTML = "";
+
+  data.forEach((n) => {
+    container.innerHTML += `
+      <div style="border:1px solid #ccc;padding:10px;margin:10px 0;">
+        <h3>${n.title}</h3>
+        <p>${n.message}</p>
+
+        <button onclick="deleteNews('${n.id}')">Delete</button>
+        <button onclick="editNews('${n.id}', '${n.title}', '${n.message}')">Edit</button>
+      </div>
+    `;
+  });
+}
+
+async function deleteNews(id) {
+  const confirmDelete = confirm("Delete this news?");
+  if (!confirmDelete) return;
+
+  const { error } = await supabaseClient.from("news").delete().eq("id", id);
+
+  if (error) {
+    alert("Delete failed");
+    return;
+  }
+
+  alert("News deleted");
+  loadAdminNews();
+}
+
+async function editNews(id, oldTitle, oldMessage) {
+  const title = prompt("Edit title:", oldTitle);
+  const message = prompt("Edit message:", oldMessage);
+
+  if (!title || !message) return;
+
+  const { error } = await supabaseClient
+    .from("news")
+    .update({ title, message })
+    .eq("id", id);
+
+  if (error) {
+    alert("Update failed");
+    return;
+  }
+
+  alert("News updated");
+  loadAdminNews();
+}
+document.addEventListener("DOMContentLoaded", () => {
+  loadAdminNews();
+});
+async function loadNews() {
+  const { data, error } = await supabaseClient
+    .from("news")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log("NEWS ERROR:", error);
+    return;
+  }
+
+  const tbody = document.getElementById("newsBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  data.forEach((n) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${n.title}</td>
+        <td>${n.message}</td>
+        <td>
+          <button onclick="deleteNews('${n.id}')">Delete</button>
+          <button onclick="editNews('${n.id}', '${n.title}', '${n.message}')">Edit</button>
+        </td>
+      </tr>
+    `;
+  });
+}

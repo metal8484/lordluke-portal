@@ -235,5 +235,35 @@
       <tbody id="paymentsBody"></tbody>
     </table>
     <!-- ===================== JS (ONLY ONE TIME) ===================== -->
+    <!-- ===================================================== -->
+    <!-- 📰 NEWS MANAGEMENT -->
+    <!-- ===================================================== -->
+
+    <section class="panel">
+      <h2>📰 School News</h2>
+
+      <form id="news-form">
+        <input type="text" id="news-title" placeholder="News Title" required />
+
+        <textarea
+          id="news-message"
+          placeholder="Write announcement here..."
+          required
+        ></textarea>
+
+        <button type="submit">Post News</button>
+      </form>
+
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+
+        <tbody id="newsBody"></tbody>
+      </table>
+    </section>
   </body>
 </html>

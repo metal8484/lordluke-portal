@@ -33,13 +33,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     student = studentData;
 
     loadUI();
+    initPassportUpload();
     loadResults();
     loadFees();
     loadPayments();
+    loadNews(); // ✅ FIXED (now inside scope)
 
-    // =========================================================
-    // 🟦 FIX: ID CARD INIT (ONLY ADDITION)
-    // =========================================================
     loadIDCard();
   }
 
@@ -55,10 +54,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("student-class").textContent =
       student?.class || "Class not set";
+
+    if (student?.passport_url) {
+      document.getElementById("student-profile").src = student.passport_url;
+    }
   }
 
   // =========================================================
-  // 🟦 FIX: ID CARD FUNCTION (ONLY ADDITION)
+  // 🟦 ID CARD
   // =========================================================
   function loadIDCard() {
     const btn = document.getElementById("go-id-card");
@@ -71,23 +74,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     const img = document.getElementById("id-card-img");
 
     if (name) name.textContent = student?.name || "";
-    if (id) id.textContent = student?.auth_user_id || "";
+    if (id)
+      id.textContent = student?.student_number || student?.auth_user_id || "";
     if (cls) cls.textContent = student?.class || "";
-    if (img) img.src = "images/image.png";
+    if (img) img.src = student?.passport_url || "images/image.png";
 
-    // OPEN ID CARD
     btn?.addEventListener("click", () => {
       document.getElementById("main-dashboard").style.display = "none";
       document.getElementById("results-page").style.display = "none";
       page.style.display = "block";
     });
 
-    // BACK BUTTON
     back?.addEventListener("click", () => {
       page.style.display = "none";
       document.getElementById("main-dashboard").style.display = "block";
     });
   }
+
+  const idCard = document.querySelector(".id-card-wrapper");
+
+  idCard?.addEventListener("click", () => {
+    const front = document.querySelector(".id-card.front");
+    const back = document.querySelector(".id-card.back");
+
+    front?.classList.toggle("flipped");
+    back?.classList.toggle("flipped");
+
+    if (back.style.display === "none" || back.style.display === "") {
+      back.style.display = "block";
+    } else {
+      back.style.display = "none";
+    }
+  });
 
   // =========================================================
   // 🟦 LOGOUT
@@ -114,7 +132,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // =========================================================
-  // 🟦 LOAD RESULTS
+  // 🟦 RESULTS
   // =========================================================
   async function loadResults() {
     const { data } = await supabaseClient
@@ -129,13 +147,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadSessions();
   }
 
-  // =========================================================
-  // 🟦 RENDER RESULTS
-  // =========================================================
   function renderResults(resultsData) {
     const tbody = document.querySelector("#results-page tbody");
     const avgEl = document.getElementById("average-score");
     const perfEl = document.getElementById("performance-level");
+
+    if (!tbody) return;
 
     tbody.innerHTML = "";
 
@@ -171,29 +188,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       ? (total / resultsData.length).toFixed(2)
       : 0;
 
-    avgEl.textContent = avg;
+    if (avgEl) avgEl.textContent = avg;
 
-    perfEl.textContent =
-      avg >= 70
-        ? "Excellent"
-        : avg >= 60
-          ? "Very Good"
-          : avg >= 50
-            ? "Good"
-            : avg >= 40
-              ? "Pass"
-              : "Fail";
+    if (perfEl)
+      perfEl.textContent =
+        avg >= 70
+          ? "Excellent"
+          : avg >= 60
+            ? "Very Good"
+            : avg >= 50
+              ? "Good"
+              : avg >= 40
+                ? "Pass"
+                : "Fail";
   }
 
   // =========================================================
-  // 🟦 FILTER SYSTEM (UNCHANGED)
+  // 🟦 FILTER
   // =========================================================
   document.getElementById("apply-filter")?.addEventListener("click", () => {
-    const termInput = document.getElementById("filter-term")?.value || "";
-    const sessionInput = document.getElementById("filter-session")?.value || "";
+    const term = (document.getElementById("filter-term")?.value || "")
+      .trim()
+      .toLowerCase();
 
-    const term = termInput.trim().toLowerCase();
-    const session = sessionInput.trim().toLowerCase();
+    const session = (document.getElementById("filter-session")?.value || "")
+      .trim()
+      .toLowerCase();
 
     let filtered = [...allResults];
 
@@ -230,112 +250,113 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // =========================================================
-  // 🟦 PRINT SYSTEM (UNCHANGED)
+  // 🟦 PRINT
+  // =========================================================
+  // 🟦 PRINT SYSTEM (RESTORED FULL VERSION)
   // =========================================================
   document.getElementById("print-result-btn")?.addEventListener("click", () => {
     const term = document.getElementById("filter-term")?.value || "All Terms";
     const session =
       document.getElementById("filter-session")?.value || "All Sessions";
 
-    const rows = document.querySelector("#results-page tbody").innerHTML;
+    const rows = document.querySelector("#results-page tbody")?.innerHTML;
 
     const printWindow = window.open("", "", "width=900,height=1000");
 
     printWindow.document.write(`
-      <html>
-      <head>
-        <title>Result Sheet</title>
-        <style>
-          body { font-family: Arial; padding: 30px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+    <html>
+    <head>
+      <title>Result Sheet</title>
+      <style>
+        body { font-family: Arial; padding: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 8px; text-align: center; }
 
-          .header { text-align: center; }
+        .header { text-align: center; margin-bottom: 20px; }
 
-          .signature {
-            margin-top: 70px;
-            display: flex;
-            justify-content: space-between;
-          }
+        .signature {
+          margin-top: 70px;
+          display: flex;
+          justify-content: space-between;
+        }
 
-          .signature div {
-            text-align: center;
-            width: 200px;
-          }
+        .signature div {
+          text-align: center;
+          width: 200px;
+        }
 
-          .line {
-            border-top: 1px solid #000;
-            margin-top: 50px;
-            padding-top: 5px;
-          }
+        .line {
+          border-top: 1px solid #000;
+          margin-top: 50px;
+          padding-top: 5px;
+        }
 
-          img {
-            width: 150px;
-            height: 80px;
-            display: block;
-            margin: auto;
-          }
-        </style>
-      </head>
+        img {
+          width: 150px;
+          height: 80px;
+          display: block;
+          margin: auto;
+        }
+      </style>
+    </head>
 
-      <body>
+    <body>
 
-        <div class="header">
-          <h2>LORD LUKE.TECH SCHOOL</h2>
-          <p>Student Result Sheet</p>
+      <div class="header">
+        <h2>LORD LUKE.TECH SCHOOL</h2>
+        <p>Student Result Sheet</p>
+      </div>
+
+      <p><b>Name:</b> ${student?.name}</p>
+      <p><b>ID:</b> ${student?.auth_user_id}</p>
+      <p><b>Class:</b> ${student?.class}</p>
+      <p><b>Term:</b> ${term}</p>
+      <p><b>Session:</b> ${session}</p>
+
+      <table>
+        <tr>
+          <th>Subject</th>
+          <th>Score</th>
+          <th>Grade</th>
+          <th>Term</th>
+          <th>Session</th>
+        </tr>
+        ${rows}
+      </table>
+
+      <div class="signature">
+
+        <div>
+          <img src="./images/teacher-sign.png">
+          <div class="line">Class Teacher</div>
         </div>
 
-        <p><b>Name:</b> ${student?.name}</p>
-        <p><b>ID:</b> ${student?.auth_user_id}</p>
-        <p><b>Class:</b> ${student?.class}</p>
-        <p><b>Term:</b> ${term}</p>
-        <p><b>Session:</b> ${session}</p>
-
-        <table>
-          <tr>
-            <th>Subject</th>
-            <th>Score</th>
-            <th>Grade</th>
-            <th>Term</th>
-            <th>Session</th>
-          </tr>
-          ${rows}
-        </table>
-
-        <div class="signature">
-
-          <div>
-            <img src="./images/teacher-sign.png">
-            <div class="line">Class Teacher</div>
-          </div>
-
-          <div>
-            <img src="./images/principal-sign.png">
-            <div class="line">Principal</div>
-          </div>
-
+        <div>
+          <img src="./images/principal-sign.png">
+          <div class="line">Principal</div>
         </div>
 
-        <script>
-          window.onload = () => window.print();
-        <\/script>
+      </div>
 
-      </body>
-      </html>
-    `);
+      <script>
+        window.onload = () => window.print();
+      <\/script>
+
+    </body>
+    </html>
+  `);
 
     printWindow.document.close();
   });
 
   // =========================================================
-  // 🟦 FEES + PAYMENTS
+  // 🟦 FEES
   // =========================================================
   async function loadFees() {
     const { data } = await supabaseClient
       .from("fees_settings")
       .select("*")
-      .eq("student_id", student.auth_user_id)
-      .order("created_at", { ascending: false });
+      .eq("student_id", student.auth_user_id);
 
     if (!data?.length) return;
 
@@ -346,6 +367,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("student-session").textContent = fee.session;
   }
 
+  // =========================================================
+  // 🟦 PAYMENTS
+  // =========================================================
   async function loadPayments() {
     const { data } = await supabaseClient
       .from("fees_payments")
@@ -367,6 +391,78 @@ document.addEventListener("DOMContentLoaded", async () => {
           <td>${p.balance_after}</td>
           <td>${new Date(p.timestamp).toLocaleString()}</td>
         </tr>
+      `;
+    });
+  }
+
+  // =========================================================
+  // 🟦 PASSPORT UPLOAD
+  // =========================================================
+  async function initPassportUpload() {
+    const uploadInput = document.getElementById("passport-upload");
+    const uploadBtn = document.getElementById("upload-passport-btn");
+
+    if (!uploadInput || !uploadBtn) return;
+
+    uploadBtn.addEventListener("click", async () => {
+      const file = uploadInput.files[0];
+      if (!file) return alert("Select an image");
+
+      const filePath = `${user.id}/${Date.now()}_${file.name}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from("student-passports")
+        .upload(filePath, file);
+
+      if (uploadError) return alert("Upload failed");
+
+      const { data } = supabaseClient.storage
+        .from("student-passports")
+        .getPublicUrl(filePath);
+
+      const imageUrl = data.publicUrl;
+
+      await supabaseClient
+        .from("students")
+        .update({ passport_url: imageUrl })
+        .eq("auth_user_id", user.id);
+
+      document.getElementById("student-profile").src = imageUrl;
+      document.getElementById("id-card-img").src = imageUrl;
+    });
+  }
+
+  // =========================================================
+  // 🟦 NEWS (FIXED PROPERLY)
+  // =========================================================
+  async function loadNews() {
+    const { data, error } = await supabaseClient
+      .from("news")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log("NEWS ERROR:", error);
+      return;
+    }
+
+    const container = document.getElementById("studentNewsContainer");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    if (!data?.length) {
+      container.innerHTML = "<p>No news available</p>";
+      return;
+    }
+
+    data.forEach((n) => {
+      container.innerHTML += `
+        <div style="padding:10px;border:1px solid #ddd;margin-bottom:10px;">
+          <h3>${n.title}</h3>
+          <p>${n.message}</p>
+          <small>${new Date(n.created_at).toLocaleString()}</small>
+        </div>
       `;
     });
   }

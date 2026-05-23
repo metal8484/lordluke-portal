@@ -44,6 +44,10 @@
             class="student-profile"
             src="images/image.png"
           />
+
+          <input type="file" id="passport-upload" accept="image/*" />
+          <button id="upload-passport-btn">Upload Photo</button>
+
           <button id="logout-btn">Logout</button>
         </div>
       </header>
@@ -105,7 +109,14 @@
           </table>
         </section>
       </main>
+      <!-- 📰 SCHOOL NEWS -->
+      <section class="panel">
+        <h2>📰 School News & Announcements</h2>
 
+        <div id="studentNewsContainer">
+          <!-- News will load here -->
+        </div>
+      </section>
       <!-- ========================================================= -->
       <!-- 🟦 SECTION 6: RESULTS PAGE -->
       <!-- ========================================================= -->
@@ -152,11 +163,33 @@
       <section id="id-card-page" style="display: none">
         <button id="id-card-back-btn">⬅ Back</button>
 
-        <div class="id-card">
-          <img id="id-card-img" src="images/image.png" />
-          <h2 id="id-card-name"></h2>
-          <p id="id-card-id"></p>
-          <p id="id-card-class"></p>
+        <div class="id-card-wrapper">
+          <!-- FRONT -->
+          <div class="id-card front">
+            <div class="id-header">
+              <h2>LORD LUKE.TECH SCHOOL</h2>
+            </div>
+
+            <img id="id-card-img" src="images/image.png" />
+
+            <h3 id="id-card-name"></h3>
+            <p id="id-card-id"></p>
+            <p id="id-card-class"></p>
+          </div>
+
+          <!-- BACK -->
+          <div class="id-card back">
+            <div class="id-header">
+              <h2>BACK SIDE</h2>
+            </div>
+
+            <p><b>School Rules:</b></p>
+            <p>1. Be disciplined</p>
+            <p>2. Respect teachers</p>
+            <p>3. Always attend classes</p>
+
+            <div id="qr-placeholder">QR CODE AREA</div>
+          </div>
         </div>
       </section>
     </div>
@@ -164,6 +197,7 @@
     <!-- ========================================================= -->
     <!-- 🟦 SECTION 8: DASHBOARD JS LINK -->
     <!-- ========================================================= -->
+
     <script src="dashboard.js"></script>
   </body>
 </html>

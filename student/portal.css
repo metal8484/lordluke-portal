@@ -568,3 +568,121 @@ body.viewing-section .student-profile {
 .student-results td {
   padding: 10px 8px;
 }
+
+/* ============================= */
+/* 🪪 ID CARD DESIGN */
+/* ============================= */
+
+.id-card {
+  width: 320px;
+  margin: 20px auto;
+  padding: 15px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.id-header {
+  background: #1e3a8a;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.id-card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #1e3a8a;
+  margin-bottom: 10px;
+}
+
+#id-card-name {
+  font-size: 20px;
+  margin: 5px 0;
+}
+
+#id-card-id {
+  font-size: 13px;
+  color: gray;
+  word-break: break-word;
+}
+
+#id-card-class {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+/* ========================= */
+/* 🪪 FRONT & BACK ID CARD LAYOUT */
+/* ========================= */
+
+.id-card {
+  width: 320px;
+  margin: 20px auto;
+  padding: 15px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+/* FRONT CARD */
+.id-card.front {
+  border: 2px solid #1e3a8a;
+}
+
+/* BACK CARD */
+ .id-card.back {
+  background: #f8fafc; /* light gray so it stands out */
+  border: 2px dashed #1e3a8a;
+  margin-top: 25px;
+}
+}
+
+.id-header {
+  background: #1e3a8a;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.id-card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #1e3a8a;
+  margin: 10px 0;
+}
+
+#id-card-name {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#id-card-id {
+  font-size: 13px;
+  color: #555;
+  word-break: break-word;
+}
+
+#id-card-class {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+#qr-placeholder {
+  margin-top: 15px;
+  padding: 20px;
+  border: 1px dashed #999;
+  font-size: 12px;
+  color: gray;
+}
+
