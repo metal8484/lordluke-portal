@@ -234,7 +234,20 @@
 
       <tbody id="paymentsBody"></tbody>
     </table>
-    <!-- ===================== JS (ONLY ONE TIME) ===================== -->
+
+    <!-- ===================================================== -->
+    <!-- 🎛 RESULT ACCESS CONTROL -->
+    <!-- ===================================================== -->
+
+    <section class="panel">
+      <h2>🎛 Result Access Control</h2>
+
+      <button id="enableResultBtn">✅ Enable Result Checking</button>
+
+      <button id="disableResultBtn">❌ Disable Result Checking</button>
+
+      <p id="resultStatusText"></p>
+    </section>
     <!-- ===================================================== -->
     <!-- 📰 NEWS MANAGEMENT -->
     <!-- ===================================================== -->
@@ -263,6 +276,31 @@
         </thead>
 
         <tbody id="newsBody"></tbody>
+      </table>
+      <!-- ===================================================== -->
+      <!-- 🎟 SCRATCH CARD SYSTEM FIXED -->
+      <!-- ===================================================== -->
+
+      <h2>🎟 Scratch Card Generator</h2>
+
+      <input id="scratch-count" type="number" placeholder="How many cards?" />
+      <button id="generate-scratch-btn">Generate Cards</button>
+
+      <p id="scratch-status"></p>
+
+      <h3>Generated Scratch Cards</h3>
+
+      <table border="1" width="100%">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Status</th>
+            <th>Student</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody id="scratchCardsBody"></tbody>
       </table>
     </section>
   </body>

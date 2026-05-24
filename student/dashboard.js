@@ -2,14 +2,33 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =========================================================
   // 🟦 SUPABASE INIT
   // =========================================================
-  let allResults = [];
-
   const supabaseUrl = "https://iupwqyksdntdccnzoxrb.supabase.co";
   const supabaseKey = "sb_publishable_hUYF2MqC5s12fi-3mRoSng_-pwwzK2V";
   const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
   let user = null;
   let student = null;
+  let allResults = [];
+
+  let resultAccessState = false;
+
+  // =========================================================
+  // 🟦 RESULT CONTROL (FIXED)
+  // =========================================================
+  async function syncResultAccess() {
+    try {
+      const { data } = await supabaseClient
+        .from("offon")
+        .select("result_access")
+        .eq("id", 1)
+        .single();
+
+      resultAccessState = data?.result_access === true;
+    } catch (err) {
+      console.log("RESULT ACCESS ERROR:", err);
+      resultAccessState = false;
+    }
+  }
 
   // =========================================================
   // 🟦 AUTH
@@ -17,12 +36,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function initUser() {
     const { data } = await supabaseClient.auth.getUser();
 
-    if (!data.user) {
+    if (!data?.user) {
       window.location.href = "login.html";
       return;
     }
 
     user = data.user;
+
+    await syncResultAccess();
 
     const { data: studentData } = await supabaseClient
       .from("students")
@@ -33,13 +54,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     student = studentData;
 
     loadUI();
-    initPassportUpload();
-    loadResults();
+    loadNews();
     loadFees();
     loadPayments();
-    loadNews(); // ✅ FIXED (now inside scope)
-
-    loadIDCard();
+    initPassportUpload();
+    initIDCard();
+    initScratch();
+    loadResults();
   }
 
   // =========================================================
@@ -50,96 +71,138 @@ document.addEventListener("DOMContentLoaded", async () => {
       "Welcome, " + (student?.name || user.email);
 
     document.getElementById("student-id-display").textContent =
-      "ID: " + student.auth_user_id;
+      "ID: " + student?.auth_user_id;
 
-    document.getElementById("student-class").textContent =
-      student?.class || "Class not set";
+    document.getElementById("student-class").textContent = student?.class || "";
 
     if (student?.passport_url) {
       document.getElementById("student-profile").src = student.passport_url;
     }
+    document.getElementById("id-card-img").src =
+      student?.passport_url || "images/image.png";
   }
 
   // =========================================================
-  // 🟦 ID CARD
+  // 🟦 NEWS
   // =========================================================
-  function loadIDCard() {
-    const btn = document.getElementById("go-id-card");
-    const page = document.getElementById("id-card-page");
-    const back = document.getElementById("id-card-back-btn");
+  async function loadNews() {
+    const { data } = await supabaseClient
+      .from("news")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    const name = document.getElementById("id-card-name");
-    const id = document.getElementById("id-card-id");
-    const cls = document.getElementById("id-card-class");
-    const img = document.getElementById("id-card-img");
+    const container = document.getElementById("studentNewsContainer");
+    if (!container) return;
 
-    if (name) name.textContent = student?.name || "";
-    if (id)
-      id.textContent = student?.student_number || student?.auth_user_id || "";
-    if (cls) cls.textContent = student?.class || "";
-    if (img) img.src = student?.passport_url || "images/image.png";
+    container.innerHTML = "";
 
-    btn?.addEventListener("click", () => {
-      document.getElementById("main-dashboard").style.display = "none";
-      document.getElementById("results-page").style.display = "none";
-      page.style.display = "block";
-    });
-
-    back?.addEventListener("click", () => {
-      page.style.display = "none";
-      document.getElementById("main-dashboard").style.display = "block";
+    (data || []).forEach((n) => {
+      container.innerHTML += `
+        <div style="padding:10px;border:1px solid #ddd;margin-bottom:10px;">
+          <h3>${n.title}</h3>
+          <p>${n.message}</p>
+        </div>
+      `;
     });
   }
 
-  const idCard = document.querySelector(".id-card-wrapper");
+  // =========================================================
+  // 🟦 FEES
+  // =========================================================
+  async function loadFees() {
+    const { data } = await supabaseClient
+      .from("fees_settings")
+      .select("*")
+      .eq("student_id", student.auth_user_id);
 
-  idCard?.addEventListener("click", () => {
-    const front = document.querySelector(".id-card.front");
-    const back = document.querySelector(".id-card.back");
+    const fee = data?.[0];
+    if (!fee) return;
 
-    front?.classList.toggle("flipped");
-    back?.classList.toggle("flipped");
-
-    if (back.style.display === "none" || back.style.display === "") {
-      back.style.display = "block";
-    } else {
-      back.style.display = "none";
-    }
-  });
+    document.getElementById("student-balance").textContent = fee.balance;
+    document.getElementById("student-term").textContent = fee.term;
+    document.getElementById("student-session").textContent = fee.session;
+    document.getElementById("student-amount-due").textContent =
+      fee.amount_due || 0;
+  }
 
   // =========================================================
-  // 🟦 LOGOUT
+  // 🟦 PAYMENTS
   // =========================================================
-  document.getElementById("logout-btn")?.addEventListener("click", async () => {
-    await supabaseClient.auth.signOut();
-    window.location.href = "login.html";
-  });
+  async function loadPayments() {
+    const { data } = await supabaseClient
+      .from("fees_payments")
+      .select("*")
+      .eq("student_id", student.auth_user_id)
+      .order("timestamp", { ascending: false });
+
+    const body = document.getElementById("paymentHistoryBody");
+    if (!body) return;
+
+    body.innerHTML = "";
+
+    (data || []).forEach((p) => {
+      body.innerHTML += `
+        <tr>
+          <td>${p.amount_paid}</td>
+          <td>${p.term}</td>
+          <td>${p.session}</td>
+          <td>${p.balance_after}</td>
+          <td>${new Date(p.timestamp).toLocaleString()}</td>
+        </tr>
+      `;
+    });
+  }
 
   // =========================================================
-  // 🟦 NAVIGATION
+  // 🟦 SCRATCH CARD (FIXED)
   // =========================================================
-  const main = document.getElementById("main-dashboard");
-  const resultsPage = document.getElementById("results-page");
+  function initScratch() {
+    document
+      .getElementById("scratch-submit-btn")
+      ?.addEventListener("click", async () => {
+        const code = document.getElementById("scratch-code-input").value.trim();
 
-  document.getElementById("go-results")?.addEventListener("click", () => {
-    main.style.display = "none";
-    resultsPage.style.display = "block";
-  });
+        if (!code) return alert("Enter scratch code");
 
-  document.getElementById("results-back-btn")?.addEventListener("click", () => {
-    resultsPage.style.display = "none";
-    main.style.display = "block";
-  });
+        const { data: card } = await supabaseClient
+          .from("scratch_cards")
+          .select("*")
+          .eq("code", code)
+          .single();
+
+        if (!card) return alert("Invalid code");
+        if (card.used) return alert("Already used");
+
+        await supabaseClient
+          .from("scratch_cards")
+          .update({
+            used: true,
+            student_id: student.auth_user_id,
+          })
+          .eq("code", code);
+
+        localStorage.setItem("scratch_used", "true");
+
+        document.getElementById("main-dashboard").style.display = "none";
+        document.getElementById("results-page").style.display = "block";
+
+        loadResults();
+      });
+  }
 
   // =========================================================
-  // 🟦 RESULTS
+  // 🟦 RESULTS (FIXED FILTER + LOAD)
   // =========================================================
   async function loadResults() {
+    if (!resultAccessState && !localStorage.getItem("scratch_used")) {
+      console.log("RESULTS BLOCKED");
+      return;
+    }
+
     const { data } = await supabaseClient
       .from("results")
       .select("*")
-      .eq("student_id", student.auth_user_id)
-      .order("created_at", { ascending: false });
+      .eq("student_id", student.auth_user_id);
 
     allResults = data || [];
 
@@ -147,18 +210,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadSessions();
   }
 
-  function renderResults(resultsData) {
+  function renderResults(results) {
     const tbody = document.querySelector("#results-page tbody");
-    const avgEl = document.getElementById("average-score");
-    const perfEl = document.getElementById("performance-level");
-
     if (!tbody) return;
 
     tbody.innerHTML = "";
 
     let total = 0;
 
-    resultsData.forEach((r) => {
+    results.forEach((r) => {
       const score = Number(r.score);
       total += score;
 
@@ -178,42 +238,39 @@ document.addEventListener("DOMContentLoaded", async () => {
           <td>${r.subject}</td>
           <td>${score}</td>
           <td>${grade}</td>
-          <td>${r.term || "N/A"}</td>
-          <td>${r.session || "N/A"}</td>
+          <td>${r.term || ""}</td>
+          <td>${r.session || ""}</td>
         </tr>
       `;
     });
 
-    const avg = resultsData.length
-      ? (total / resultsData.length).toFixed(2)
-      : 0;
+    const avg = results.length ? (total / results.length).toFixed(2) : 0;
 
-    if (avgEl) avgEl.textContent = avg;
+    document.getElementById("average-score").textContent = avg;
 
-    if (perfEl)
-      perfEl.textContent =
-        avg >= 70
-          ? "Excellent"
-          : avg >= 60
-            ? "Very Good"
-            : avg >= 50
-              ? "Good"
-              : avg >= 40
-                ? "Pass"
-                : "Fail";
+    document.getElementById("performance-level").textContent =
+      avg >= 70
+        ? "Excellent"
+        : avg >= 60
+          ? "Very Good"
+          : avg >= 50
+            ? "Good"
+            : "Pass";
   }
 
   // =========================================================
-  // 🟦 FILTER
+  // 🟦 FILTER (FIXED)
   // =========================================================
   document.getElementById("apply-filter")?.addEventListener("click", () => {
-    const term = (document.getElementById("filter-term")?.value || "")
-      .trim()
-      .toLowerCase();
+    const term = document
+      .getElementById("filter-term")
+      .value.toLowerCase()
+      .trim();
 
-    const session = (document.getElementById("filter-session")?.value || "")
-      .trim()
-      .toLowerCase();
+    const session = document
+      .getElementById("filter-session")
+      .value.toLowerCase()
+      .trim();
 
     let filtered = [...allResults];
 
@@ -242,18 +299,75 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     sessions.forEach((s) => {
       if (!s) return;
-      const option = document.createElement("option");
-      option.value = s;
-      option.textContent = s;
-      select.appendChild(option);
+      const opt = document.createElement("option");
+      opt.value = s;
+      opt.textContent = s;
+      select.appendChild(opt);
     });
   }
 
   // =========================================================
-  // 🟦 PRINT
+  // 🟦 BACK BUTTON (FIXED)
   // =========================================================
-  // 🟦 PRINT SYSTEM (RESTORED FULL VERSION)
+  document.getElementById("results-back-btn")?.addEventListener("click", () => {
+    document.getElementById("results-page").style.display = "none";
+    document.getElementById("main-dashboard").style.display = "block";
+  });
+
   // =========================================================
+  // 🟦 ID CARD
+  // =========================================================
+  function initIDCard() {
+    document.getElementById("go-id-card")?.addEventListener("click", () => {
+      document.getElementById("main-dashboard").style.display = "none";
+      document.getElementById("id-card-page").style.display = "block";
+    });
+
+    document
+      .getElementById("id-card-back-btn")
+      ?.addEventListener("click", () => {
+        document.getElementById("id-card-page").style.display = "none";
+        document.getElementById("main-dashboard").style.display = "block";
+      });
+  }
+
+  // =========================================================
+  // 🟦 PASSPORT UPLOAD (FIXED)
+  // =========================================================
+  function initPassportUpload() {
+    document
+      .getElementById("upload-passport-btn")
+      ?.addEventListener("click", async () => {
+        const file = document.getElementById("passport-upload").files[0];
+        if (!file) return alert("Select image");
+
+        const path = `${user.id}_${Date.now()}_${file.name}`;
+
+        await supabaseClient.storage
+          .from("student-passports")
+          .upload(path, file);
+
+        const { data } = supabaseClient.storage
+          .from("student-passports")
+          .getPublicUrl(path);
+
+        await supabaseClient
+          .from("students")
+          .update({ passport_url: data.publicUrl })
+          .eq("auth_user_id", user.id);
+
+        document.getElementById("student-profile").src = data.publicUrl;
+        document.getElementById("id-card-img").src = data.publicUrl;
+      });
+  }
+
+  // =========================================================
+  // 🟦 LOGOUT
+  // =========================================================
+  document.getElementById("logout-btn")?.addEventListener("click", async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+  });
   document.getElementById("print-result-btn")?.addEventListener("click", () => {
     const term = document.getElementById("filter-term")?.value || "All Terms";
     const session =
@@ -261,21 +375,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const rows = document.querySelector("#results-page tbody")?.innerHTML;
 
-    const printWindow = window.open("", "", "width=900,height=1000");
+    if (!rows) {
+      alert("No results to print");
+      return;
+    }
+
+    const printWindow = window.open("", "_blank", "width=900,height=1000");
 
     printWindow.document.write(`
     <html>
     <head>
       <title>Result Sheet</title>
       <style>
-        body { font-family: Arial; padding: 30px; }
+        body { font-family: Arial; padding: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #000; padding: 8px; text-align: center; }
 
         .header { text-align: center; margin-bottom: 20px; }
 
         .signature {
-          margin-top: 70px;
+          margin-top: 60px;
           display: flex;
           justify-content: space-between;
         }
@@ -287,13 +406,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         .line {
           border-top: 1px solid #000;
-          margin-top: 50px;
+          margin-top: 40px;
           padding-top: 5px;
         }
 
         img {
-          width: 150px;
-          height: 80px;
+          width: 120px;
+          height: 70px;
           display: block;
           margin: auto;
         }
@@ -325,22 +444,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       </table>
 
       <div class="signature">
-
         <div>
-          <img src="./images/teacher-sign.png">
+          <img src="./images/teacher-sign.png" />
           <div class="line">Class Teacher</div>
         </div>
 
         <div>
-          <img src="./images/principal-sign.png">
+          <img src="./images/principal-sign.png" />
           <div class="line">Principal</div>
         </div>
-
       </div>
 
       <script>
         window.onload = () => window.print();
-      <\/script>
+      </script>
 
     </body>
     </html>
@@ -350,125 +467,67 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // =========================================================
-  // 🟦 FEES
+  // 🟦 START
   // =========================================================
-  async function loadFees() {
-    const { data } = await supabaseClient
-      .from("fees_settings")
-      .select("*")
-      .eq("student_id", student.auth_user_id);
+  // 🖨️ PRINT ID CARD
+  document
+    .getElementById("print-id-card-btn")
+    ?.addEventListener("click", () => {
+      const card = document.querySelector(".id-card-wrapper");
 
-    if (!data?.length) return;
+      if (!card) {
+        alert("ID Card not found");
+        return;
+      }
 
-    const fee = data[0];
+      const printWindow = window.open("", "", "width=900,height=700");
 
-    document.getElementById("student-balance").textContent = fee.balance;
-    document.getElementById("student-term").textContent = fee.term;
-    document.getElementById("student-session").textContent = fee.session;
-  }
+      printWindow.document.write(`
+    <html>
+    <head>
+      <title>ID Card</title>
 
-  // =========================================================
-  // 🟦 PAYMENTS
-  // =========================================================
-  async function loadPayments() {
-    const { data } = await supabaseClient
-      .from("fees_payments")
-      .select("*")
-      .eq("student_id", student.auth_user_id)
-      .order("timestamp", { ascending: false });
+      <style>
+        body{
+          display:flex;
+          justify-content:center;
+          align-items:center;
+          height:100vh;
+          font-family:Arial;
+        }
 
-    const body = document.getElementById("paymentHistoryBody");
-    if (!body) return;
+        .id-card-wrapper{
+          width:350px;
+        }
 
-    body.innerHTML = "";
+        .id-card{
+          border:1px solid #000;
+          border-radius:10px;
+          padding:20px;
+          text-align:center;
+        }
 
-    data?.forEach((p) => {
-      body.innerHTML += `
-        <tr>
-          <td>${p.amount_paid}</td>
-          <td>${p.term}</td>
-          <td>${p.session}</td>
-          <td>${p.balance_after}</td>
-          <td>${new Date(p.timestamp).toLocaleString()}</td>
-        </tr>
-      `;
+        .id-card img{
+          width:100px;
+          height:100px;
+          border-radius:50%;
+          object-fit:cover;
+        }
+      </style>
+    </head>
+
+    <body>
+      ${card.outerHTML}
+
+      <script>
+        window.onload = () => window.print();
+      <\/script>
+
+    </body>
+    </html>
+  `);
+
+      printWindow.document.close();
     });
-  }
-
-  // =========================================================
-  // 🟦 PASSPORT UPLOAD
-  // =========================================================
-  async function initPassportUpload() {
-    const uploadInput = document.getElementById("passport-upload");
-    const uploadBtn = document.getElementById("upload-passport-btn");
-
-    if (!uploadInput || !uploadBtn) return;
-
-    uploadBtn.addEventListener("click", async () => {
-      const file = uploadInput.files[0];
-      if (!file) return alert("Select an image");
-
-      const filePath = `${user.id}/${Date.now()}_${file.name}`;
-
-      const { error: uploadError } = await supabaseClient.storage
-        .from("student-passports")
-        .upload(filePath, file);
-
-      if (uploadError) return alert("Upload failed");
-
-      const { data } = supabaseClient.storage
-        .from("student-passports")
-        .getPublicUrl(filePath);
-
-      const imageUrl = data.publicUrl;
-
-      await supabaseClient
-        .from("students")
-        .update({ passport_url: imageUrl })
-        .eq("auth_user_id", user.id);
-
-      document.getElementById("student-profile").src = imageUrl;
-      document.getElementById("id-card-img").src = imageUrl;
-    });
-  }
-
-  // =========================================================
-  // 🟦 NEWS (FIXED PROPERLY)
-  // =========================================================
-  async function loadNews() {
-    const { data, error } = await supabaseClient
-      .from("news")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.log("NEWS ERROR:", error);
-      return;
-    }
-
-    const container = document.getElementById("studentNewsContainer");
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    if (!data?.length) {
-      container.innerHTML = "<p>No news available</p>";
-      return;
-    }
-
-    data.forEach((n) => {
-      container.innerHTML += `
-        <div style="padding:10px;border:1px solid #ddd;margin-bottom:10px;">
-          <h3>${n.title}</h3>
-          <p>${n.message}</p>
-          <small>${new Date(n.created_at).toLocaleString()}</small>
-        </div>
-      `;
-    });
-  }
-
-  // =========================================================
-  // 🟦 INIT
-  // =========================================================
   initUser();
 });

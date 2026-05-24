@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const supabaseKey = "sb_publishable_hUYF2MqC5s12fi-3mRoSng_-pwwzK2V";
 
   window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+  const supabaseClient = window.supabaseClient;
   // =========================================================
   // 🧠 GLOBAL STATE
   // =========================================================
@@ -660,7 +661,7 @@ async function loadAdminNews() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  const container = document.getElementById("adminNewsContainer");
+  const container = document.getElementById("newsBody");
   container.innerHTML = "";
 
   data.forEach((n) => {
@@ -742,3 +743,180 @@ async function loadNews() {
     `;
   });
 }
+// =====================================================
+// 🎛 RESULT ACCESS CONTROL
+// =====================================================
+
+async function loadResultAccessStatus() {
+  const { data, error } = await supabaseClient
+    .from("offon")
+    .select("*")
+    .eq("id", 1)
+    .single();
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  const statusText = document.getElementById("resultStatusText");
+
+  if (!statusText) return;
+
+  statusText.textContent = data.result_access
+    ? "✅ Result checking is ENABLED"
+    : "❌ Result checking is DISABLED";
+}
+
+// ENABLE RESULT
+document
+  .getElementById("enableResultBtn")
+  ?.addEventListener("click", async () => {
+    const { error } = await supabaseClient
+      .from("offon")
+      .update({ result_access: true })
+      .eq("id", 1);
+
+    if (error) {
+      console.log(error);
+      alert("Failed to enable");
+      return;
+    }
+
+    alert("Result checking enabled");
+
+    loadResultAccessStatus();
+  });
+
+// DISABLE RESULT
+document
+  .getElementById("disableResultBtn")
+  ?.addEventListener("click", async () => {
+    const { error } = await supabaseClient
+      .from("offon")
+      .update({ result_access: false })
+      .eq("id", 1);
+
+    if (error) {
+      console.log(error);
+      alert("Failed to disable");
+      return;
+    }
+
+    alert("Result checking disabled");
+
+    loadResultAccessStatus();
+  });
+
+// LOAD STATUS
+loadResultAccessStatus();
+
+// =====================================================
+// 🎫 SCRATCH CARD SYSTEM (FULL FIXED VERSION)
+// =====================================================
+
+async function loadScratchCards() {
+  const { data, error } = await supabaseClient
+    .from("scratch_cards")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log("SCRATCH LOAD ERROR:", error);
+    return;
+  }
+
+  const tbody = document.getElementById("scratchCardsBody");
+
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  (data || []).forEach((card) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${card.code}</td>
+        <td>${card.used ? "USED" : "UNUSED"}</td>
+        <td>${card.student_id || "-"}</td>
+
+        <td>
+          <button onclick="deleteScratchCard('${card.id}')">
+            Delete
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+window.deleteScratchCard = async function (id) {
+  const confirmDelete = confirm("Delete this scratch card?");
+
+  if (!confirmDelete) return;
+
+  const { error } = await supabaseClient
+    .from("scratch_cards")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.log(error);
+    alert("Delete failed");
+    return;
+  }
+
+  alert("Scratch card deleted");
+
+  loadScratchCards();
+};
+
+document
+  .getElementById("generate-scratch-btn")
+  ?.addEventListener("click", async () => {
+    const count = parseInt(document.getElementById("scratch-count").value);
+
+    if (!count || count <= 0) {
+      alert("Enter valid number");
+      return;
+    }
+
+    const status = document.getElementById("scratch-status");
+
+    status.innerText = "Generating scratch cards...";
+
+    let cards = [];
+
+    for (let i = 0; i < count; i++) {
+      const code =
+        "SCR-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+      cards.push({
+        code: code,
+        used: false,
+        student_id: null,
+      });
+    }
+
+    const { error } = await supabaseClient.from("scratch_cards").insert(cards);
+
+    if (error) {
+      console.log(error);
+
+      status.innerText = "Failed to generate scratch cards";
+
+      return;
+    }
+
+    status.innerText = count + " scratch cards generated successfully";
+
+    document.getElementById("scratch-count").value = "";
+
+    loadScratchCards();
+  });
+
+// =====================================================
+// 🚀 LOAD SCRATCH TABLE
+// =====================================================
+setTimeout(() => {
+  loadScratchCards();
+}, 500);
