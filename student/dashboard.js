@@ -70,22 +70,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("student-name-header").textContent =
       "Welcome, " + (student?.name || user.email);
 
+<<<<<<< HEAD
     document.getElementById("student-id-display").textContent =
       "ID: " + student?.auth_user_id;
 
     document.getElementById("student-class").textContent = student?.class || "";
+=======
+    document.getElementById("student-id-display").innerHTML = `
+    <b>Name:</b> ${student?.name || "N/A"}<br>
+    <b>Class:</b> ${student?.class || "N/A"}<br>
+    <b>ID:</b> ${student?.student_number || student?.auth_user_id}
+  `;
+
+    // 🔥 FIX FRONT ID CARD (THIS IS WHAT YOU ARE MISSING)
+    const idName = document.getElementById("id-card-name");
+    const idNumber = document.getElementById("id-card-id");
+    const idClass = document.getElementById("id-card-class");
+
+    if (idName) idName.textContent = student?.name || "";
+    if (idNumber)
+      idNumber.textContent = student?.student_number || student?.auth_user_id;
+    if (idClass) idClass.textContent = student?.class || "";
+>>>>>>> 06f9614 (message)
 
     if (student?.passport_url) {
       document.getElementById("student-profile").src = student.passport_url;
+
+      document.getElementById("id-card-img").src = student.passport_url;
     }
     document.getElementById("id-card-img").src =
       student?.passport_url || "images/image.png";
   }
-
   // =========================================================
   // 🟦 NEWS
   // =========================================================
   async function loadNews() {
+<<<<<<< HEAD
     const { data } = await supabaseClient
       .from("news")
       .select("*")
@@ -151,6 +171,173 @@ document.addEventListener("DOMContentLoaded", async () => {
         </tr>
       `;
     });
+  }
+
+  // =========================================================
+  // 🟦 SCRATCH CARD (FIXED)
+  // =========================================================
+  function initScratch() {
+    document
+      .getElementById("scratch-submit-btn")
+      ?.addEventListener("click", async () => {
+        const code = document.getElementById("scratch-code-input").value.trim();
+
+        if (!code) return alert("Enter scratch code");
+
+        const { data: card } = await supabaseClient
+          .from("scratch_cards")
+          .select("*")
+          .eq("code", code)
+          .single();
+
+        if (!card) return alert("Invalid code");
+        if (card.used) return alert("Already used");
+
+        await supabaseClient
+          .from("scratch_cards")
+          .update({
+            used: true,
+            student_id: student.auth_user_id,
+          })
+          .eq("code", code);
+
+        localStorage.setItem("scratch_used", "true");
+
+        document.getElementById("main-dashboard").style.display = "none";
+        document.getElementById("results-page").style.display = "block";
+
+        loadResults();
+      });
+  }
+
+  // =========================================================
+  // 🟦 RESULTS (FIXED FILTER + LOAD)
+  // =========================================================
+  async function loadResults() {
+    if (!resultAccessState && !localStorage.getItem("scratch_used")) {
+      console.log("RESULTS BLOCKED");
+      return;
+    }
+
+=======
+>>>>>>> 06f9614 (message)
+    const { data } = await supabaseClient
+      .from("news")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    const container = document.getElementById("studentNewsContainer");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    (data || []).forEach((n) => {
+      container.innerHTML += `
+        <div style="padding:10px;border:1px solid #ddd;margin-bottom:10px;">
+          <h3>${n.title}</h3>
+          <p>${n.message}</p>
+        </div>
+      `;
+    });
+  }
+
+  // =========================================================
+  // 🟦 FEES
+  // =========================================================
+  async function loadFees() {
+    if (!student?.auth_user_id) return;
+
+    const { data: fees, error } = await supabaseClient
+      .from("fees_settings")
+      .select("*")
+      .eq("student_id", student.auth_user_id);
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    const tbody = document.getElementById("paymentHistoryBody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    fees.forEach((fee) => {
+      tbody.innerHTML += `
+    <tr>
+      <td>₦${fee.amount_due || 0}</td>
+      <td>₦${fee.amount_paid || 0}</td>
+      <td>₦${fee.balance || 0}</td>
+      <td>${fee.term || ""}</td>
+      <td>${fee.year || ""}</td>
+      <td>${fee.created_at ? new Date(fee.created_at).toLocaleString() : ""}</td>
+    </tr>
+  `;
+    });
+
+    const latest = fees[0];
+
+    document.getElementById("student-amount-due").textContent =
+      latest?.amount_due || 0;
+
+    document.getElementById("student-amount-paid").textContent =
+      latest?.amount_paid || 0;
+
+    document.getElementById("student-balance").textContent =
+      latest?.balance || 0;
+
+    document.getElementById("student-term").textContent = latest?.term || "N/A";
+
+    // YEAR ONLY
+    document.getElementById("student-session").textContent =
+      latest?.year || "N/A";
+  }
+  // =========================================================
+  // 🟦 PAYMENTS
+  // =========================================================
+  async function loadPayments() {
+    const { data } = await supabaseClient
+      .from("fees_payments")
+      .select("*")
+      .eq("student_id", student.auth_user_id)
+      .order("timestamp", { ascending: false });
+
+    const body = document.getElementById("paymentHistoryBody");
+
+    if (!body) return;
+
+    body.innerHTML = "";
+
+    let currentGroup = "";
+
+    (data || []).forEach((p) => {
+      const groupKey = `${p.term}-${p.year}`;
+
+      // Group Header
+      if (groupKey !== currentGroup) {
+        currentGroup = groupKey;
+
+        body.innerHTML += `
+        <tr style="background:#eee;font-weight:bold;">
+          <td colspan="5">
+            TERM: ${p.term} | YEAR: ${p.year}
+          </td>
+        </tr>
+      `;
+      }
+
+      body.innerHTML += `
+      <tr>
+        <td>${p.amount_paid}</td>
+        <td>${p.term}</td>
+        <td>${p.year || ""}</td>
+        <td>${p.balance_after || ""}</td>
+        <td>${new Date(p.timestamp).toLocaleString()}</td>
+      </tr>
+    `;
+    });
+    console.log("Student ID:", student.id);
+    console.log("Payments data:", data);
   }
 
   // =========================================================
@@ -267,7 +454,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       .value.toLowerCase()
       .trim();
 
+<<<<<<< HEAD
     const session = document
+=======
+    const year = document
+>>>>>>> 06f9614 (message)
       .getElementById("filter-session")
       .value.toLowerCase()
       .trim();
@@ -279,10 +470,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         (r.term || "").toLowerCase().includes(term),
       );
     }
-
-    if (session) {
+    if (year) {
       filtered = filtered.filter((r) =>
-        (r.session || "").toLowerCase().includes(session),
+        (r.year || "").toLowerCase().includes(year),
       );
     }
 
@@ -295,13 +485,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     select.innerHTML = `<option value="">All Sessions</option>`;
 
-    const sessions = [...new Set(allResults.map((r) => r.session))];
+    const years = [...new Set(allResults.map((r) => r.year))];
 
-    sessions.forEach((s) => {
+    years.forEach((y) => {
       if (!s) return;
       const opt = document.createElement("option");
+<<<<<<< HEAD
       opt.value = s;
       opt.textContent = s;
+=======
+      opt.value = y;
+      opt.textContent = y;
+>>>>>>> 06f9614 (message)
       select.appendChild(opt);
     });
   }
@@ -370,8 +565,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   document.getElementById("print-result-btn")?.addEventListener("click", () => {
     const term = document.getElementById("filter-term")?.value || "All Terms";
-    const session =
-      document.getElementById("filter-session")?.value || "All Sessions";
+    const year =
+      document.getElementById("filter-session")?.value || "All Years";
 
     const rows = document.querySelector("#results-page tbody")?.innerHTML;
 
@@ -430,19 +625,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       <p><b>ID:</b> ${student?.auth_user_id}</p>
       <p><b>Class:</b> ${student?.class}</p>
       <p><b>Term:</b> ${term}</p>
-      <p><b>Session:</b> ${session}</p>
+      <p><b>Year:</b> ${year}</p>
+       <table>
+  <thead>
+    <tr>
+      <th>Subject</th>
+      <th>Score</th>
+      <th>Grade</th>
+      <th>Term</th>
+      <th>Year</th>
+    </tr>
+  </thead>
 
-      <table>
-        <tr>
-          <th>Subject</th>
-          <th>Score</th>
-          <th>Grade</th>
-          <th>Term</th>
-          <th>Session</th>
-        </tr>
-        ${rows}
-      </table>
-
+  <tbody>
+    ${rows}
+  </tbody>
+</table>s
       <div class="signature">
         <div>
           <img src="./images/teacher-sign.png" />

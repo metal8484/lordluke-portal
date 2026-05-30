@@ -11,51 +11,29 @@
   </head>
 
   <body>
-    <!-- ================= 🔐 HEADER / SYSTEM CONTROL ================= -->
     <header>
       <h1>🧠 Admin Dashboard</h1>
       <button id="logout-btn">Logout</button>
     </header>
 
     <div class="dashboard-container">
-      <!-- ========================================================= -->
-      <!-- 🟦 SECTION 1: STUDENT MANAGEMENT -->
-      <!-- ========================================================= -->
+      <!-- ================= STUDENTS ================= -->
       <section class="panel">
         <h2>👨‍🎓 Student Management</h2>
 
-        <!-- 🔍 SEARCH STUDENTS -->
-        <input
-          id="search-students"
-          placeholder="Search student by name..."
-          style="margin-bottom: 10px; width: 100%; padding: 8px"
-        />
-
-        <!-- ➕ ADD STUDENT FORM -->
         <form id="add-student-form">
-          <h3>Add Student</h3>
-          <p id="edit-mode-indicator" style="color: red"></p>
           <input id="student-name" placeholder="Full Name" required />
-          <input
-            id="student-email"
-            type="email"
-            placeholder="Student Email (e.g eke@gmail.com)"
-            required
-          />
+          <input id="student-email" type="email" placeholder="Email" required />
           <input id="student-class" placeholder="Class" required />
-
-          <!-- password used for auth -->
           <input
             id="student-password"
             type="password"
             placeholder="Password"
             required
           />
-
-          <button type="submit">➕ Add Student</button>
+          <button type="submit">Add Student</button>
         </form>
 
-        <!-- 📋 STUDENTS TABLE -->
         <table id="students-table">
           <thead>
             <tr>
@@ -65,54 +43,23 @@
               <th>Actions</th>
             </tr>
           </thead>
-
           <tbody></tbody>
         </table>
       </section>
 
-      <!-- ========================================================= -->
-      <!-- 🟨 SECTION 2: RESULT MANAGEMENT -->
-      <!-- ========================================================= -->
+      <!-- ================= RESULTS ================= -->
       <section class="panel">
         <h2>📝 Result Management</h2>
 
-        <!-- 🔍 SEARCH RESULTS -->
-        <input
-          id="search-results"
-          placeholder="Search result by subject or student ID..."
-          style="margin-bottom: 10px; width: 100%; padding: 8px"
-        />
-
-        <!-- ➕ ADD RESULT FORM -->
         <form id="add-result-form">
-          <h3>Add Result</h3>
-
-          <select id="result-student-id" required>
-            <option value="">Select Student</option>
-          </select>
-
+          <select id="result-student-id" required></select>
           <input id="result-subject" placeholder="Subject" required />
-
           <input id="result-score" type="number" placeholder="Score" required />
-
-          <input
-            type="text"
-            id="result-term"
-            placeholder="Enter Term"
-            required
-          />
-
-          <input
-            type="text"
-            id="result-session"
-            placeholder="Enter Session"
-            required
-          />
-
-          <button type="submit">➕ Add Result</button>
+          <input id="result-term" placeholder="Term" required />
+          <input id="result-year" placeholder="Year (2025/2026)" required />
+          <button type="submit">Add Result</button>
         </form>
 
-        <!-- 📋 RESULTS TABLE -->
         <table id="results-table">
           <thead>
             <tr>
@@ -122,28 +69,15 @@
               <th>Actions</th>
             </tr>
           </thead>
-
           <tbody></tbody>
         </table>
       </section>
 
-      <!-- ========================================================= -->
-      <!-- 🟥 SECTION 3: ADMIN MANAGEMENT -->
-      <!-- ========================================================= -->
+      <!-- ================= ADMINS ================= -->
       <section class="panel">
         <h2>👨‍💼 Admin Management</h2>
 
-        <!-- 🔍 SEARCH ADMINS -->
-        <input
-          id="search-admins"
-          placeholder="Search admin by username or email..."
-          style="margin-bottom: 10px; width: 100%; padding: 8px"
-        />
-
-        <!-- ➕ ADD ADMIN FORM -->
         <form id="add-admin-form">
-          <h3>Add Admin</h3>
-
           <input id="admin-username" placeholder="Username" required />
           <input id="admin-email" placeholder="Email" required />
           <input
@@ -152,11 +86,9 @@
             placeholder="Password"
             required
           />
-
-          <button type="submit">➕ Add Admin</button>
+          <button type="submit">Add Admin</button>
         </form>
 
-        <!-- 📋 ADMINS TABLE -->
         <table id="admins-table">
           <thead>
             <tr>
@@ -165,59 +97,50 @@
               <th>Actions</th>
             </tr>
           </thead>
-
           <tbody></tbody>
         </table>
       </section>
     </div>
 
-    <!-- =====================================================
-     💰 FEES MANAGEMENT SECTION
-===================================================== -->
-    <!-- =====================================================
-     💰 FEES MANAGEMENT SECTION
-===================================================== -->
-
-    <h2>Fees Management</h2>
+    <!-- ================= FEES ================= -->
+    <h2>💰 Fees Management</h2>
 
     <div>
-      <!-- STUDENT DROPDOWN -->
-      <select id="student_id" required>
-        <option value="">Select Student</option>
-      </select>
+      <select id="student_id"></select>
 
-      <input type="text" id="term" placeholder="Term" />
-      <input type="text" id="session" placeholder="Session" />
-      <input type="number" id="amount_due" placeholder="Amount Due" />
+      <input id="term" placeholder="Term" />
+      <input id="year" placeholder="Year (2025/2026)" />
+      <input id="amount_due" type="number" placeholder="Amount Due" />
 
-      <button type="button" id="addFeeBtn">Add Fee</button>
+      <button id="addFeeBtn">Add Fee</button>
     </div>
 
-    <br />
     <h3>Record Payment</h3>
 
-    <select id="payment_student_id">
-      <option value="">Select Student</option>
-    </select>
+    <div>
+      <select id="payment_student_id"></select>
+      <input id="payment_amount" type="number" placeholder="Amount Paid" />
+      <input id="payment_year" placeholder="Year (2025/2026)" />
+      <button id="recordPaymentBtn">Record Payment</button>
+    </div>
 
-    <input type="number" id="payment_amount" placeholder="Amount Paid" />
-    <input type="text" id="session" placeholder="Enter session e.g 2025/2026" />
-    <button id="recordPaymentBtn">Record Payment</button>
+    <!-- FEES TABLE (BALANCE VIEW FIXED IN JS) -->
     <table border="1">
       <thead>
         <tr>
           <th>Student ID</th>
           <th>Term</th>
-          <th>Session</th>
+          <th>Year</th>
           <th>Amount Due</th>
           <th>Paid</th>
           <th>Balance</th>
           <th>Status</th>
         </tr>
       </thead>
-
       <tbody id="feesBody"></tbody>
     </table>
+
+    <!-- PAYMENT HISTORY -->
     <h2>💳 Payment History</h2>
 
     <table border="1">
@@ -226,14 +149,13 @@
           <th>Student ID</th>
           <th>Amount Paid</th>
           <th>Term</th>
-          <th>Session</th>
-          <th>Balance After</th>
+          <th>Year</th>
           <th>Time</th>
         </tr>
       </thead>
-
       <tbody id="paymentsBody"></tbody>
     </table>
+<<<<<<< HEAD
 
     <!-- ===================================================== -->
     <!-- 🎛 RESULT ACCESS CONTROL -->
@@ -251,31 +173,53 @@
     <!-- ===================================================== -->
     <!-- 📰 NEWS MANAGEMENT -->
     <!-- ===================================================== -->
+=======
+>>>>>>> 06f9614 (message)
 
+    <!-- ================= RESULT CONTROL (RESTORED) ================= -->
+    <section class="panel">
+      <h2>🎛 Result Access Control</h2>
+
+      <button id="enableResultBtn">Enable</button>
+      <button id="disableResultBtn">Disable</button>
+
+      <p id="resultStatusText"></p>
+    </section>
+
+    <!-- ================= NEWS ================= -->
     <section class="panel">
       <h2>📰 School News</h2>
 
       <form id="news-form">
-        <input type="text" id="news-title" placeholder="News Title" required />
-
-        <textarea
-          id="news-message"
-          placeholder="Write announcement here..."
-          required
-        ></textarea>
-
+        <input id="news-title" placeholder="Title" required />
+        <textarea id="news-message" placeholder="Message" required></textarea>
         <button type="submit">Post News</button>
       </form>
 
       <table border="1">
+        <tbody id="newsBody"></tbody>
+      </table>
+    </section>
+
+    <!-- ================= SCRATCH CARD SYSTEM (RESTORED) ================= -->
+    <section class="panel">
+      <h2>🎟 Scratch Card Generator</h2>
+
+      <input id="scratch-count" type="number" placeholder="How many cards?" />
+      <button id="generate-scratch-btn">Generate Cards</button>
+
+      <p id="scratch-status"></p>
+
+      <table border="1" width="100%">
         <thead>
           <tr>
-            <th>Title</th>
-            <th>Message</th>
+            <th>Code</th>
+            <th>Status</th>
+            <th>Student</th>
+            <th>Action</th>
           </tr>
         </thead>
-
-        <tbody id="newsBody"></tbody>
+        <tbody id="scratchCardsBody"></tbody>
       </table>
       <!-- ===================================================== -->
       <!-- 🎟 SCRATCH CARD SYSTEM FIXED -->

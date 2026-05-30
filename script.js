@@ -1,7 +1,28 @@
 // =============================
 // BUTTON TOGGLE MESSAGE
 // =============================
+// =============================
+// BACKGROUND IMAGE AUTO SUPPORT (PNG + JPG + JPEG)
+// =============================
 
+const bgImages = ["bg.png", "bg.jpg", "bg.jpeg"];
+
+const mainBg = document.querySelector(".main");
+
+function setBackground() {
+  for (let img of bgImages) {
+    const test = new Image();
+    test.src = img;
+
+    test.onload = () => {
+      if (mainBg) {
+        mainBg.style.backgroundImage = `url('${img}')`;
+      }
+    };
+  }
+}
+
+setBackground();
 let toggled = false;
 let btn = document.getElementById("perfom");
 let msg = document.getElementById("msg");
@@ -92,7 +113,9 @@ let sliderImages = [];
 
 // Generate image paths
 for (let i = 1; i <= totalImages; i++) {
-  sliderImages.push(`images/imag${i}.png`); // prefer PNG
+  sliderImages.push(`images/imag${i}.png`);
+  sliderImages.push(`images/imag${i}.jpg`);
+  sliderImages.push(`images/imag${i}.jpeg`);
 }
 
 // Preload images safely
@@ -239,8 +262,6 @@ if (clearBtn) {
 // Load history on start
 loadHistory();
 
-
-
 /////////////////////////
 // Modern Gallery – 4 Photos Only
 /////////////////////////
@@ -253,7 +274,8 @@ if (studentData) {
     const photos = student.photos || [student.profilePicture]; // ensures all images
     galleryContainer.innerHTML = "";
     galleryContainer.style.display = "grid";
-    galleryContainer.style.gridTemplateColumns = "repeat(auto-fit, minmax(120px, 1fr))";
+    galleryContainer.style.gridTemplateColumns =
+      "repeat(auto-fit, minmax(120px, 1fr))";
     galleryContainer.style.gap = "10px";
 
     photos.forEach((photoPath) => {

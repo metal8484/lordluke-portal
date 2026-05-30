@@ -141,13 +141,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         data-subject="${r.subject}"
         data-score="${r.score}"
         data-term="${r.term}"
-        data-session="${r.session}">
+        data-year="${r.year}"
 
       <td>${r.student_id}</td>
       <td>${r.subject}</td>
       <td>${r.score}</td>
       <td>${r.term || "N/A"}</td>
-      <td>${r.session || "N/A"}</td>
+       <td>${r.year || "N/A"}</td>
 
       <td>
         <button class="delete-result-btn" data-id="${r.id}">
@@ -324,14 +324,14 @@ document.addEventListener("DOMContentLoaded", async function () {
       const subject = document.getElementById("result-subject").value;
       const score = document.getElementById("result-score").value;
       const term = document.getElementById("result-term").value;
-      const session = document.getElementById("result-session").value.trim();
+      const year = document.getElementById("result-year").value.trim();
 
-      if (!session) {
-        alert("Session is required");
+      if (!year) {
+        alert("Year is required");
         return;
       }
       console.log("TERM:", term);
-      console.log("SESSION:", session);
+      console.log("YEAR:", year);
 
       if (AppState.editResultId) {
         await supabaseClient
@@ -341,7 +341,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             subject,
             score,
             term,
-            session,
+            year,
           })
           .eq("id", AppState.editResultId);
 
@@ -353,7 +353,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             subject,
             score,
             term,
-            session,
+            year,
           },
         ]);
       }
@@ -394,55 +394,122 @@ document.addEventListener("DOMContentLoaded", async function () {
   // 💰 FEES SYSTEM (FIXED + STABLE)
   // =========================================================
   async function addFee() {
-    const student_id = document.getElementById("student_id").value;
-    const term = document.getElementById("term").value;
-    const session = document.getElementById("session").value;
-    const amount_due = Number(document.getElementById("amount_due").value);
+    // =========================
+    // 1. GET INPUT VALUES
+    // =========================
+    const student_id = document.getElementById("student_id")?.value?.trim();
+    const term = document.getElementById("term")?.value?.trim();
+    const year = document.getElementById("year")?.value?.trim();
+    const amount_due = Number(document.getElementById("amount_due")?.value);
+    const total_fee = Number(document.getElementById("total_fee")?.value);
 
-    const { error } = await supabaseClient.from("fees_settings").insert([
-      {
-        student_id,
-        term,
-        session,
-        amount_due,
-        amount_paid: 0,
-        balance: amount_due,
-        status: "Unpaid",
-      },
-    ]);
+    console.log("🔥 Fee Input:", {
+      student_id,
+      term,
+      year,
+      amount_due,
+      total_fee,
+    });
 
-    if (error) {
-      console.log(error);
-      alert(error.message);
+    // =========================
+    // 2. VALIDATION
+    // =========================
+    if (!student_id || !term || !year || !amount_due) {
+      alert("Missing required fields: student, term, year, amount due");
       return;
     }
 
+    if (amount_due <= 0) {
+      alert("Amount must be greater than 0");
+      return;
+    }
+
+    // =========================
+    // 3. INSERT INTO SUPABASE
+    // =========================
+    const { data, error } = await supabaseClient
+      .from("fees_settings")
+      .insert([
+        {
+          student_id,
+          term,
+          year,
+          total_fee: total_fee || amount_due,
+          amount_due,
+          balance: amount_due,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select();
+
+    // =========================
+    // 4. ERROR CHECK
+    // =========================
+    if (error) {
+      console.log("❌ Fee Insert Error:", error);
+      alert("Failed to save fee: " + error.message);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      alert("Fee not saved (unknown issue)");
+      return;
+    }
+
+    // =========================
+    // 5. SUCCESS
+    // =========================
+    alert("Fee created successfully ✔");
+
+    // refresh table
     loadFees();
   }
 
   async function loadFees() {
-    const { data } = await supabaseClient.from("fees_settings").select("*");
+    const { data: fees } = await supabaseClient
+      .from("fees_settings")
+      .select("*");
+
+    const { data: payments } = await supabaseClient
+      .from("fees_payments")
+      .select("*");
 
     const tableBody = document.getElementById("feesBody");
     if (!tableBody) return;
 
     tableBody.innerHTML = "";
 
-    (data || []).forEach((fee) => {
+    (fees || []).forEach((fee) => {
+      const studentPayments = (payments || []).filter(
+        (p) =>
+          p.student_id === fee.student_id &&
+          p.term === fee.term &&
+          p.year === fee.year,
+      );
+
+      const totalPaid = studentPayments.reduce(
+        (sum, p) => sum + Number(p.amount_paid || 0),
+        0,
+      );
+
+      const balance = Number(fee.amount_due || 0) - totalPaid;
+
+      const status =
+        balance <= 0 ? "Paid" : totalPaid > 0 ? "Partial" : "Unpaid";
+
       tableBody.innerHTML += `
-        <tr>
-          <td>${fee.student_id}</td>
-          <td>${fee.term}</td>
-          <td>${fee.session}</td>
-          <td>${fee.amount_due}</td>
-          <td>${fee.amount_paid}</td>
-          <td>${fee.balance}</td>
-          <td>${fee.status}</td>
-        </tr>
-      `;
+      <tr>
+        <td>${fee.student_id}</td>
+        <td>${fee.term}</td>
+        <td>${fee.year}</td>
+        <td>${fee.amount_due}</td>
+        <td>${totalPaid}</td>
+        <td>${balance}</td>
+        <td>${status}</td>
+      </tr>
+    `;
     });
   }
-
   const addFeeBtn = document.getElementById("addFeeBtn");
   if (addFeeBtn) {
     addFeeBtn.addEventListener("click", addFee);
@@ -452,8 +519,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const amount_paid = Number(document.getElementById("payment_amount").value);
 
     const term = document.getElementById("term")?.value || "Current";
-    const session = document.getElementById("session")?.value || "Current";
-
     if (!student_id || !amount_paid) {
       alert("Select student and enter amount");
       return;
@@ -462,13 +527,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     // =====================================================
     // FIND STUDENT FEE RECORD
     // =====================================================
-    const { data: feeData, error: feeError } = await supabaseClient
+    const { data: feeList, error: feeError } = await supabaseClient
       .from("fees_settings")
       .select("*")
       .eq("student_id", student_id)
-      .order("id", { ascending: false })
-      .limit(1)
-      .single();
+      .order("created_at", { ascending: false });
+    if (!feeList || feeList.length === 0) {
+      console.log("No fee record found for:", student_id);
+      alert("No fee record found for this student. Please assign fee first.");
+      return;
+    }
+
+    const feeData = feeList[0];
 
     if (feeError || !feeData) {
       console.log(feeError);
@@ -521,8 +591,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           student_id,
           amount_paid,
           term,
-          session,
-          balance_after: newBalance,
+          year,
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -580,7 +649,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         <td>${p.student_id}</td>
         <td>${p.amount_paid}</td>
         <td>${p.term}</td>
-        <td>${p.session}</td>
+        <td>${p.year}</td>
         <td>${p.balance_after}</td>
         <td>${new Date(p.timestamp).toLocaleString()}</td>
       </tr>
