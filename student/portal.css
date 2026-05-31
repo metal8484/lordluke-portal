@@ -637,14 +637,6 @@ body.viewing-section .student-profile {
   border: 2px solid #1e3a8a;
 }
 
-/* BACK CARD */
- .id-card.back {
-  background: #f8fafc; /* light gray so it stands out */
-  border: 2px dashed #1e3a8a;
-  margin-top: 25px;
-}
-}
-
 .id-header {
   background: #1e3a8a;
   color: white;
@@ -685,4 +677,3 @@ body.viewing-section .student-profile {
   font-size: 12px;
   color: gray;
 }
-

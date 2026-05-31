@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Admin Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <link rel="stylesheet" href="admin.css" />
     <style>
       /* Inline style for the back button to make it bold and white */
@@ -43,24 +44,15 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        const supabaseUrl = "https://iupwqyksdntdccnzoxrb.supabase.co";
+        const supabaseKey = "sb_publishable_hUYF2MqC5s12fi-3mRoSng_-pwwzK2V";
+
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
         const loginForm = document.getElementById("login-form");
         const loginMessage = document.getElementById("login-message");
 
-        let admins = JSON.parse(localStorage.getItem("admins")) || [];
-
-        // Ensure central admin exists
-        if (!admins.find((a) => a.username === "central")) {
-          admins.push({
-            username: "central",
-            email: "central@school.com",
-            password: "central123",
-            role: "central",
-            loggedIn: false,
-          });
-          localStorage.setItem("admins", JSON.stringify(admins));
-        }
-
-        loginForm.addEventListener("submit", function (e) {
+        loginForm.addEventListener("submit", async function (e) {
           e.preventDefault();
 
           const email = document.getElementById("login-email").value.trim();
@@ -68,24 +60,38 @@
             .getElementById("login-password")
             .value.trim();
 
-          const admin = admins.find(
-            (a) => a.email === email && a.password === password,
-          );
+          const { data: admin, error } = await supabaseClient
+            .from("admins")
+            .select("*")
+            .eq("email", email)
+            .eq("password", password)
+            .single();
 
-          if (admin) {
-            localStorage.setItem("adminLoggedIn", "true");
-            localStorage.setItem("currentAdmin", JSON.stringify(admin));
-
-            loginMessage.style.color = "green";
-            loginMessage.textContent = "Login successful! Redirecting...";
-
-            setTimeout(() => {
-              window.location.href = "admin-dashboard.html";
-            }, 1000);
-          } else {
+          if (error || !admin) {
             loginMessage.style.color = "red";
             loginMessage.textContent = "Invalid email or password!";
+            return;
           }
+
+          const isCentral =
+            admin.username === "central" || admin.username === "centraladmin";
+
+          localStorage.setItem("adminLoggedIn", "true");
+
+          localStorage.setItem(
+            "currentAdmin",
+            JSON.stringify({
+              ...admin,
+              isCentral: isCentral,
+            }),
+          );
+
+          loginMessage.style.color = "green";
+          loginMessage.textContent = "Login successful...";
+
+          setTimeout(() => {
+            window.location.href = "admin-dashboard.html";
+          }, 800);
         });
       });
     </script>

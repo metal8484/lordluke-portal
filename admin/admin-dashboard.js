@@ -7,6 +7,22 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
   const supabaseClient = window.supabaseClient;
+  const CENTRAL_ADMIN_USERNAME = "centraladmin";
+
+  function getCurrentAdmin() {
+    try {
+      return JSON.parse(localStorage.getItem("currentAdmin"));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function isCentralAdmin(admin) {
+    return admin && admin.username === CENTRAL_ADMIN_USERNAME;
+  }
+
+  window.CURRENT_ADMIN = getCurrentAdmin();
+  window.IS_CENTRAL_ADMIN = isCentralAdmin(window.CURRENT_ADMIN);
   // =========================================================
   // 🧠 GLOBAL STATE
   // =========================================================
@@ -143,7 +159,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         data-term="${r.term}"
         data-year="${r.year}"
 
-      <td>${r.student_id}</td>
+      <td>${r.student_name || r.student_id}</td>
       <td>${r.subject}</td>
       <td>${r.score}</td>
       <td>${r.term || "N/A"}</td>
@@ -347,9 +363,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         AppState.editResultId = null;
       } else {
+        const selectedStudent = document.querySelector("#result-student-id");
+        const studentName =
+          selectedStudent.options[selectedStudent.selectedIndex]?.text || "";
+
         await supabaseClient.from("results").insert([
           {
             student_id,
+            student_name: studentName,
             subject,
             score,
             term,
@@ -425,7 +446,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     // =========================
-    // 3. INSERT INTO SUPABASE
+    // 3. CLEAN INITIAL VALUES (IMPORTANT FIX)
+    // =========================
+    const amount_paid = 0;
+    const balance = amount_due - amount_paid;
+    const status = "Unpaid";
+
+    // =========================
+    // 4. INSERT INTO SUPABASE
     // =========================
     const { data, error } = await supabaseClient
       .from("fees_settings")
@@ -436,14 +464,16 @@ document.addEventListener("DOMContentLoaded", async function () {
           year,
           total_fee: total_fee || amount_due,
           amount_due,
-          balance: amount_due,
+          amount_paid,
+          balance,
+          status,
           created_at: new Date().toISOString(),
         },
       ])
       .select();
 
     // =========================
-    // 4. ERROR CHECK
+    // 5. ERROR CHECK
     // =========================
     if (error) {
       console.log("❌ Fee Insert Error:", error);
@@ -457,11 +487,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     // =========================
-    // 5. SUCCESS
+    // 6. SUCCESS
     // =========================
     alert("Fee created successfully ✔");
 
-    // refresh table
     loadFees();
   }
 
@@ -527,10 +556,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     // =====================================================
     // FIND STUDENT FEE RECORD
     // =====================================================
+    const year = document.getElementById("year")?.value;
+
     const { data: feeList, error: feeError } = await supabaseClient
       .from("fees_settings")
       .select("*")
       .eq("student_id", student_id)
+      .eq("term", term)
+      .eq("year", year)
       .order("created_at", { ascending: false });
     if (!feeList || feeList.length === 0) {
       console.log("No fee record found for:", student_id);
@@ -549,12 +582,25 @@ document.addEventListener("DOMContentLoaded", async function () {
     // =====================================================
     // CALCULATIONS
     // =====================================================
-    const currentPaid = Number(feeData.amount_paid || 0);
+    // =====================================================
+    // CALCULATIONS (FIXED: uses payment history as source of truth)
+    // =====================================================
+
+    // get all previous payments
+    const { data: paymentList } = await supabaseClient
+      .from("fees_payments")
+      .select("amount_paid")
+      .eq("student_id", student_id);
+
+    const previousPaid = (paymentList || []).reduce(
+      (sum, p) => sum + Number(p.amount_paid || 0),
+      0,
+    );
+
+    const newPaid = previousPaid + amount_paid;
+
     const currentDue = Number(feeData.amount_due || 0);
-
-    const newPaid = currentPaid + amount_paid;
     const newBalance = currentDue - newPaid;
-
     let status = "Unpaid";
 
     if (newBalance <= 0) {
@@ -624,7 +670,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function loadPayments() {
     console.log("🔥 Loading payment history...");
 
-    const { data, error } = await supabaseClient
+    const { data: payments, error } = await supabaseClient
       .from("fees_payments")
       .select("*")
       .order("timestamp", { ascending: false });
@@ -634,29 +680,46 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    const tableBody = document.getElementById("paymentsBody");
+    const { data: fees } = await supabaseClient
+      .from("fees_settings")
+      .select("*");
 
-    if (!tableBody) {
-      console.log("❌ paymentsBody not found in HTML");
-      return;
-    }
+    const tableBody = document.getElementById("paymentsBody");
+    if (!tableBody) return;
 
     tableBody.innerHTML = "";
 
-    (data || []).forEach((p) => {
+    (payments || []).forEach((p) => {
+      // match fee record
+      const fee = (fees || []).find(
+        (f) =>
+          f.student_id === p.student_id &&
+          f.term === p.term &&
+          f.year === p.year,
+      );
+
+      const amount_due = fee?.amount_due || 0;
+
+      // safest balance logic
+      const balance_after =
+        p.balance_after ?? amount_due - Number(p.amount_paid || 0);
+
       tableBody.innerHTML += `
-      <tr>
-        <td>${p.student_id}</td>
-        <td>${p.amount_paid}</td>
-        <td>${p.term}</td>
-        <td>${p.year}</td>
-        <td>${p.balance_after}</td>
-        <td>${new Date(p.timestamp).toLocaleString()}</td>
-      </tr>
-    `;
+  <tr>
+    <td>${p.student_id}</td>
+
+    <td>${p.amount_paid ?? 0}</td>
+
+    <td>${p.term || "-"}</td>
+
+    <td>${p.year || "-"}</td>
+
+    <td>${p.timestamp ? new Date(p.timestamp).toLocaleString() : "-"}</td>
+  </tr>
+`;
     });
 
-    console.log("✅ Payment history loaded:", data?.length || 0);
+    console.log("✅ Payment history loaded:", payments?.length || 0);
   }
 
   setTimeout(() => {
@@ -981,6 +1044,35 @@ document
     document.getElementById("scratch-count").value = "";
 
     loadScratchCards();
+    function enableYearFilterClickFix() {
+      const yearSelect = document.getElementById("year");
+
+      if (!yearSelect) {
+        console.log("Year filter not found");
+        return;
+      }
+
+      // force enable clicking
+      yearSelect.style.pointerEvents = "auto";
+      yearSelect.disabled = false;
+
+      // if options are empty, re-enable interaction
+      yearSelect.addEventListener("click", () => {
+        console.log("Year dropdown clicked");
+      });
+
+      // ensure it reacts even if styled as blocked
+      yearSelect.addEventListener("mousedown", (e) => {
+        e.stopPropagation();
+      });
+
+      console.log("Year filter fix applied");
+    }
+
+    // run it AFTER page load
+    window.addEventListener("load", () => {
+      setTimeout(enableYearFilterClickFix, 500);
+    });
   });
 
 // =====================================================

@@ -70,12 +70,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("student-name-header").textContent =
       "Welcome, " + (student?.name || user.email);
 
-<<<<<<< HEAD
-    document.getElementById("student-id-display").textContent =
-      "ID: " + student?.auth_user_id;
-
-    document.getElementById("student-class").textContent = student?.class || "";
-=======
     document.getElementById("student-id-display").innerHTML = `
     <b>Name:</b> ${student?.name || "N/A"}<br>
     <b>Class:</b> ${student?.class || "N/A"}<br>
@@ -91,136 +85,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (idNumber)
       idNumber.textContent = student?.student_number || student?.auth_user_id;
     if (idClass) idClass.textContent = student?.class || "";
->>>>>>> 06f9614 (message)
 
     if (student?.passport_url) {
       document.getElementById("student-profile").src = student.passport_url;
 
       document.getElementById("id-card-img").src = student.passport_url;
     }
-    document.getElementById("id-card-img").src =
-      student?.passport_url || "images/image.png";
   }
   // =========================================================
   // 🟦 NEWS
   // =========================================================
   async function loadNews() {
-<<<<<<< HEAD
-    const { data } = await supabaseClient
-      .from("news")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    const container = document.getElementById("studentNewsContainer");
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    (data || []).forEach((n) => {
-      container.innerHTML += `
-        <div style="padding:10px;border:1px solid #ddd;margin-bottom:10px;">
-          <h3>${n.title}</h3>
-          <p>${n.message}</p>
-        </div>
-      `;
-    });
-  }
-
-  // =========================================================
-  // 🟦 FEES
-  // =========================================================
-  async function loadFees() {
-    const { data } = await supabaseClient
-      .from("fees_settings")
-      .select("*")
-      .eq("student_id", student.auth_user_id);
-
-    const fee = data?.[0];
-    if (!fee) return;
-
-    document.getElementById("student-balance").textContent = fee.balance;
-    document.getElementById("student-term").textContent = fee.term;
-    document.getElementById("student-session").textContent = fee.session;
-    document.getElementById("student-amount-due").textContent =
-      fee.amount_due || 0;
-  }
-
-  // =========================================================
-  // 🟦 PAYMENTS
-  // =========================================================
-  async function loadPayments() {
-    const { data } = await supabaseClient
-      .from("fees_payments")
-      .select("*")
-      .eq("student_id", student.auth_user_id)
-      .order("timestamp", { ascending: false });
-
-    const body = document.getElementById("paymentHistoryBody");
-    if (!body) return;
-
-    body.innerHTML = "";
-
-    (data || []).forEach((p) => {
-      body.innerHTML += `
-        <tr>
-          <td>${p.amount_paid}</td>
-          <td>${p.term}</td>
-          <td>${p.session}</td>
-          <td>${p.balance_after}</td>
-          <td>${new Date(p.timestamp).toLocaleString()}</td>
-        </tr>
-      `;
-    });
-  }
-
-  // =========================================================
-  // 🟦 SCRATCH CARD (FIXED)
-  // =========================================================
-  function initScratch() {
-    document
-      .getElementById("scratch-submit-btn")
-      ?.addEventListener("click", async () => {
-        const code = document.getElementById("scratch-code-input").value.trim();
-
-        if (!code) return alert("Enter scratch code");
-
-        const { data: card } = await supabaseClient
-          .from("scratch_cards")
-          .select("*")
-          .eq("code", code)
-          .single();
-
-        if (!card) return alert("Invalid code");
-        if (card.used) return alert("Already used");
-
-        await supabaseClient
-          .from("scratch_cards")
-          .update({
-            used: true,
-            student_id: student.auth_user_id,
-          })
-          .eq("code", code);
-
-        localStorage.setItem("scratch_used", "true");
-
-        document.getElementById("main-dashboard").style.display = "none";
-        document.getElementById("results-page").style.display = "block";
-
-        loadResults();
-      });
-  }
-
-  // =========================================================
-  // 🟦 RESULTS (FIXED FILTER + LOAD)
-  // =========================================================
-  async function loadResults() {
-    if (!resultAccessState && !localStorage.getItem("scratch_used")) {
-      console.log("RESULTS BLOCKED");
-      return;
-    }
-
-=======
->>>>>>> 06f9614 (message)
     const { data } = await supabaseClient
       .from("news")
       .select("*")
@@ -250,7 +125,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { data: fees, error } = await supabaseClient
       .from("fees_settings")
       .select("*")
-      .eq("student_id", student.auth_user_id);
+      .eq("student_id", student.auth_user_id)
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.log(error);
@@ -454,11 +330,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       .value.toLowerCase()
       .trim();
 
-<<<<<<< HEAD
-    const session = document
-=======
     const year = document
->>>>>>> 06f9614 (message)
       .getElementById("filter-session")
       .value.toLowerCase()
       .trim();
@@ -478,7 +350,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     renderResults(filtered);
   });
-
   function loadSessions() {
     const select = document.getElementById("filter-session");
     if (!select) return;
@@ -488,15 +359,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const years = [...new Set(allResults.map((r) => r.year))];
 
     years.forEach((y) => {
-      if (!s) return;
+      if (!y) return;
+
       const opt = document.createElement("option");
-<<<<<<< HEAD
-      opt.value = s;
-      opt.textContent = s;
-=======
       opt.value = y;
       opt.textContent = y;
->>>>>>> 06f9614 (message)
       select.appendChild(opt);
     });
   }
@@ -727,5 +594,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       printWindow.document.close();
     });
+
+  setInterval(async () => {
+    if (!student?.auth_user_id) return;
+
+    await loadFees();
+    await loadPayments();
+  }, 5000);
   initUser();
 });
