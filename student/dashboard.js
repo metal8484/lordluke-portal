@@ -595,11 +595,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       printWindow.document.close();
     });
 
-  setInterval(async () => {
-    if (!student?.auth_user_id) return;
-
-    await loadFees();
-    await loadPayments();
-  }, 5000);
+  // Auto-refresh removed
   initUser();
 });

@@ -677,3 +677,105 @@ body.viewing-section .student-profile {
   font-size: 12px;
   color: gray;
 }
+/* =========================
+   💰 PROFESSIONAL FEE HISTORY (CLEAN FIX)
+========================= */
+
+.student-fees {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  padding: 25px;
+  border-radius: 16px;
+  border-left: 6px solid #1e3a8a;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+/* Summary text */
+.student-fees p {
+  margin: 6px 0;
+  font-size: 15px;
+}
+
+.student-fees strong {
+  color: #1e3a8a;
+  font-weight: 800;
+}
+
+/* =========================
+   TABLE FIX (NO CONFLICTS)
+========================= */
+
+.student-fees table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+/* Header */
+.student-fees thead {
+  background: #1e3a8a;
+}
+
+.student-fees thead th {
+  color: white;
+  padding: 12px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* Body rows */
+.student-fees tbody td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Zebra rows */
+.student-fees tbody tr:nth-child(even) {
+  background: #f1f5f9;
+}
+
+/* Hover effect */
+.student-fees tbody tr:hover {
+  background: #dbeafe;
+  transition: 0.3s;
+}
+
+/* =========================
+   MONEY COLORS (CLEAR + PROFESSIONAL)
+========================= */
+
+.student-fees tbody td:nth-child(1) {
+  color: #b45309; /* due */
+  font-weight: 700;
+}
+
+.student-fees tbody td:nth-child(2) {
+  color: #16a34a; /* paid */
+  font-weight: 700;
+}
+
+.student-fees tbody td:nth-child(3) {
+  color: #dc2626; /* balance */
+  font-weight: 700;
+}
+
+/* =========================
+   MOBILE FIX
+========================= */
+@media (max-width: 768px) {
+  .student-fees {
+    padding: 15px;
+  }
+
+  .student-fees table {
+    font-size: 12px;
+  }
+
+  .student-fees th,
+  .student-fees td {
+    padding: 8px;
+  }
+}
