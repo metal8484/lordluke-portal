@@ -62,7 +62,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     initScratch();
     loadResults();
   }
+  setTimeout(() => {
+    const yearSelect = document.getElementById("filter-session");
 
+    if (yearSelect) {
+      yearSelect.disabled = false;
+      yearSelect.style.pointerEvents = "auto";
+      yearSelect.style.opacity = "1";
+    }
+  }, 500);
   // =========================================================
   // 🟦 UI
   // =========================================================
@@ -122,56 +130,74 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function loadFees() {
     if (!student?.auth_user_id) return;
 
-    const { data: fees, error } = await supabaseClient
+    const { data: fees } = await supabaseClient
       .from("fees_settings")
       .select("*")
-      .eq("student_id", student.auth_user_id)
-      .order("created_at", { ascending: false });
+      .eq("student_id", student.auth_user_id);
 
-    if (error) {
-      console.log(error);
-      return;
-    }
+    const { data: payments } = await supabaseClient
+      .from("fees_payments")
+      .select("*")
+      .eq("student_id", student.auth_user_id);
 
-    const tbody = document.getElementById("paymentHistoryBody");
+    const tbody = document.getElementById("feesHistoryBody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
 
-    fees.forEach((fee) => {
+    (fees || []).forEach((fee) => {
+      const relatedPayments = (payments || []).filter(
+        (p) => p.term === fee.term && p.year === fee.year,
+      );
+
+      const totalPaid = relatedPayments.reduce(
+        (sum, p) => sum + Number(p.amount_paid || 0),
+        0,
+      );
+
+      const balance = Number(fee.amount_due || 0) - totalPaid;
+
       tbody.innerHTML += `
-    <tr>
-      <td>₦${fee.amount_due || 0}</td>
-      <td>₦${fee.amount_paid || 0}</td>
-      <td>₦${fee.balance || 0}</td>
-      <td>${fee.term || ""}</td>
-      <td>${fee.year || ""}</td>
-      <td>${fee.created_at ? new Date(fee.created_at).toLocaleString() : ""}</td>
-    </tr>
-  `;
+      <tr>
+        <td>${fee.amount_due || 0}</td>
+        <td>${totalPaid}</td>
+        <td>${balance}</td>
+        <td>${fee.term || ""}</td>
+        <td>${fee.year || ""}</td>
+        <td>${fee.created_at ? new Date(fee.created_at).toLocaleString("en-GB") : ""}</td>
+      </tr>
+    `;
     });
 
-    const latest = fees[0];
+    const latest = fees?.[0];
 
-    document.getElementById("student-amount-due").textContent =
-      latest?.amount_due || 0;
+    if (latest) {
+      document.getElementById("student-amount-due").textContent =
+        latest.amount_due || 0;
 
-    document.getElementById("student-amount-paid").textContent =
-      latest?.amount_paid || 0;
+      const totalPaidAll = (payments || []).reduce(
+        (s, p) => s + Number(p.amount_paid || 0),
+        0,
+      );
 
-    document.getElementById("student-balance").textContent =
-      latest?.balance || 0;
+      document.getElementById("student-amount-paid").textContent = totalPaidAll;
 
-    document.getElementById("student-term").textContent = latest?.term || "N/A";
+      document.getElementById("student-balance").textContent =
+        (latest.amount_due || 0) - totalPaidAll;
 
-    // YEAR ONLY
-    document.getElementById("student-session").textContent =
-      latest?.year || "N/A";
+      document.getElementById("student-term").textContent =
+        latest.term || "N/A";
+
+      document.getElementById("student-session").textContent =
+        latest.year || "N/A";
+    }
   }
   // =========================================================
   // 🟦 PAYMENTS
   // =========================================================
   async function loadPayments() {
+    if (!student?.auth_user_id) return;
+
     const { data } = await supabaseClient
       .from("fees_payments")
       .select("*")
@@ -179,43 +205,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       .order("timestamp", { ascending: false });
 
     const body = document.getElementById("paymentHistoryBody");
-
     if (!body) return;
 
     body.innerHTML = "";
 
-    let currentGroup = "";
-
     (data || []).forEach((p) => {
-      const groupKey = `${p.term}-${p.year}`;
-
-      // Group Header
-      if (groupKey !== currentGroup) {
-        currentGroup = groupKey;
-
-        body.innerHTML += `
-        <tr style="background:#eee;font-weight:bold;">
-          <td colspan="5">
-            TERM: ${p.term} | YEAR: ${p.year}
-          </td>
-        </tr>
-      `;
-      }
-
       body.innerHTML += `
       <tr>
-        <td>${p.amount_paid}</td>
-        <td>${p.term}</td>
+        <td>${p.amount_paid || 0}</td>
+        <td>${p.term || ""}</td>
         <td>${p.year || ""}</td>
-        <td>${p.balance_after || ""}</td>
-        <td>${new Date(p.timestamp).toLocaleString()}</td>
+        <td>${p.timestamp ? new Date(p.timestamp).toLocaleString() : ""}</td>
       </tr>
     `;
     });
-    console.log("Student ID:", student.id);
-    console.log("Payments data:", data);
   }
-
   // =========================================================
   // 🟦 SCRATCH CARD (FIXED)
   // =========================================================
@@ -297,14 +301,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                 : "F";
 
       tbody.innerHTML += `
-        <tr>
-          <td>${r.subject}</td>
-          <td>${score}</td>
-          <td>${grade}</td>
-          <td>${r.term || ""}</td>
-          <td>${r.session || ""}</td>
-        </tr>
-      `;
+  <tr>
+    <td>${r.subject}</td>
+    <td>${r.score}</td>
+    <td>${grade}</td>
+    <td>${r.term || "-"}</td>
+    <td>${r.year || r.session || "-"}</td>
+  </tr>
+`;
     });
 
     const avg = results.length ? (total / results.length).toFixed(2) : 0;
@@ -356,18 +360,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     select.innerHTML = `<option value="">All Sessions</option>`;
 
-    const years = [...new Set(allResults.map((r) => r.year))];
+    const years = [...new Set(allResults.map((r) => r.year).filter(Boolean))];
 
     years.forEach((y) => {
-      if (!y) return;
-
       const opt = document.createElement("option");
       opt.value = y;
       opt.textContent = y;
       select.appendChild(opt);
     });
-  }
 
+    // FORCE ENABLE CLICK
+    select.disabled = false;
+    select.style.pointerEvents = "auto";
+  }
   // =========================================================
   // 🟦 BACK BUTTON (FIXED)
   // =========================================================
@@ -448,7 +453,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     <html>
     <head>
       <title>Result Sheet</title>
-      <style>
+      <style> 
         body { font-family: Arial; padding: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #000; padding: 8px; text-align: center; }
@@ -483,16 +488,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     <body>
 
-      <div class="header">
-        <h2>LORD LUKE.TECH SCHOOL</h2>
-        <p>Student Result Sheet</p>
-      </div>
+     <div class="header">
+  <img src="${student?.passport_url || ""}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;" />
 
-      <p><b>Name:</b> ${student?.name}</p>
-      <p><b>ID:</b> ${student?.auth_user_id}</p>
-      <p><b>Class:</b> ${student?.class}</p>
-      <p><b>Term:</b> ${term}</p>
-      <p><b>Year:</b> ${year}</p>
+  <h2>LORD LUKE.TECH SCHOOL</h2>
+  <p>Student Result Sheet</p>
+
+  <p><b>Name:</b> ${student?.name}</p>
+  <p><b>ID Number:</b> ${student?.student_number || student?.auth_user_id}</p>
+  <p><b>Class:</b> ${student?.class}</p>
+  <p><b>Term:</b> ${term}</p>
+  <p><b>Year:</b> ${year}</p>
+</div>
+
+     
+      
+      
        <table>
   <thead>
     <tr>
@@ -510,8 +521,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 </table>s
       <div class="signature">
         <div>
-          <img src="./images/teacher-sign.png" />
-          <div class="line">Class Teacher</div>
+          <img src="./images/Registral-sign.png" />
+          <div class="line">Registral</div>
         </div>
 
         <div>
@@ -594,7 +605,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       printWindow.document.close();
     });
-
-  // Auto-refresh removed
   initUser();
 });

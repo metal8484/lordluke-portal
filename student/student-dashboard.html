@@ -22,7 +22,6 @@
   </head>
 
   <body>
-  <div class="student-container"></div>
     <!-- ========================================================= -->
     <!-- 🟦 SECTION 3: MAIN CONTAINER -->
     <!-- ========================================================= -->
@@ -59,17 +58,17 @@
       <main id="main-dashboard">
         <!-- SCHOOL NEWS -->
         <section class="school-news">
-          <h2>School News</h2>
+          <h2> WELCOME</h2>
           <ul>
-            <li>📢 Exams coming soon</li>
-            <li>🎉 Sports day announced</li>
-            <li>📚 Library updated</li>
+            <li>📢  BE WISE AND READ</li>
+            <li>🎉 USE YOUR TIME WISELY</li>
+            <li>📚 BE CALM</li>
           </ul>
         </section>
 
         <!-- STUDENT INFO -->
         <section class="student-info">
-          <h2>Student Info</h2>
+          <h2>FOCUS IS THE KEY</h2>
           <p id="student-id-display"></p>
           <p id="student-class"></p>
         </section>
@@ -80,40 +79,76 @@
           <button id="go-id-card">View ID Card</button>
         </div>
 
-        <!-- ========================================================= -->
-        <!-- 🟢 SECTION 5B: FEES SYSTEM (FULL CLEAN INTEGRATION) -->
-        <!-- ========================================================= -->
-        <section class="student-fees">
-          <h2>School Fees Information</h2>
+         
 
-          <p>
-            <strong>Amount Due:</strong> ₦<span id="student-amount-due">0</span>
-          </p>
-          <p>
-            <strong>Amount Paid:</strong> ₦<span id="student-amount-paid"
-              >0</span
-            >
-          </p>
-          <p><strong>Balance:</strong> ₦<span id="student-balance">0</span></p>
-          <p><strong>Term:</strong> <span id="student-term">---</span></p>
-          <p><strong>Year:</strong> <span id="student-session">---</span></p>
+          <!-- ========================================================= -->
+          <!-- 🟢 SECTION 5B: FEES SYSTEM (CLEAN + SEPARATED) -->
+          <!-- ========================================================= -->
+          <section class="student-fees">
+            <h2>School Fees Information</h2>
 
-          <h3>Payment History</h3>
+            <p>
+              <strong>Amount Due:</strong> ₦<span id="student-amount-due"
+                >0</span
+              >
+            </p>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Amount Due</th>
-                <th>Amount Paid</th>
-                <th>Balance</th>
-                <th>Term</th>
-                <th>Year</th>
-                <th>Date</th>
-              </tr>
-            </thead>
+            <p>
+              <strong>Amount Paid:</strong> ₦<span id="student-amount-paid"
+                >0</span
+              >
+            </p>
 
-            <tbody id="paymentHistoryBody"></tbody>
-          </table>
+            <p>
+              <strong>Balance:</strong> ₦<span id="student-balance">0</span>
+            </p>
+
+            <p><strong>Term:</strong> <span id="student-term">---</span></p>
+
+            <p><strong>Year:</strong> <span id="student-session">---</span></p>
+          </section>
+
+          <!-- ========================================================= -->
+          <!-- 🟡 FEES HISTORY TABLE (loadFees()) -->
+          <!-- ========================================================= -->
+          <section class="student-fees-history">
+            <h2>Fees History</h2>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Amount Due</th>
+                  <th>Paid</th>
+                  <th>Balance</th>
+                  <th>Term</th>
+                  <th>Year</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+
+              <tbody id="feesHistoryBody"></tbody>
+            </table>
+          </section>
+
+          <!-- ========================================================= -->
+          <!-- 🔵 PAYMENT HISTORY TABLE (loadPayments()) -->
+          <!-- ========================================================= -->
+          <section class="student-payment-history">
+            <h2>Payment History</h2>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Amount Paid</th>
+                  <th>Term</th>
+                  <th>Year</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+
+              <tbody id="paymentHistoryBody"></tbody>
+            </table>
+          </section>
         </section>
       </main>
       <!-- 📰 SCHOOL NEWS -->
@@ -147,14 +182,15 @@
             <button id="apply-filter">Filter</button>
           </div>
           <table>
-            <thead>
-              <tr>
-                <th>Subject</th>
-                <th>Score</th>
-                <th>Grade</th>
-              </tr>
-            </thead>
-
+             <thead>
+  <tr>
+    <th>Subject</th>
+    <th>Score</th>
+    <th>Grade</th>
+    <th>Term</th>
+    <th>Year</th>
+  </tr>
+</thead>
             <tbody></tbody>
           </table>
 
@@ -212,6 +248,5 @@
     <!-- ========================================================= -->
 
     <script src="dashboard.js"></script>
-    </div>
   </body>
 </html>
