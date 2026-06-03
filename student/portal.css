@@ -713,3 +713,94 @@ body.viewing-section .student-profile {
   border: 2px solid #007bff;
   margin-bottom: 10px;
 }
+/* =========================================================
+   📱 MOBILE RESPONSIVE FIX (STUDENT DASHBOARD)
+========================================================= */
+
+@media screen and (max-width: 768px) {
+  /* MAIN LAYOUT */
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  /* HEADER STACK */
+  .dashboard-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .header-left,
+  .header-center,
+  .header-right {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* PROFILE IMAGE */
+  .student-profile {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  /* SCHOOL LOGO */
+  .school-logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* BUTTONS STACK */
+  .toggle-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toggle-buttons button {
+    width: 100%;
+  }
+
+  /* FEES SECTION */
+  .student-fees {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    font-size: 12px;
+  }
+
+  th,
+  td {
+    padding: 6px;
+  }
+
+  /* ID CARD */
+  .id-card-wrapper {
+    transform: scale(0.9);
+  }
+
+  .id-card {
+    width: 100%;
+  }
+
+  /* NEWS */
+  .school-news ul {
+    padding-left: 15px;
+  }
+
+  /* TEXT SIZES */
+  h1,
+  h2,
+  h3 {
+    font-size: 16px;
+  }
+
+  p {
+    font-size: 13px;
+  }
+}
