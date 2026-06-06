@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         .from("offon")
         .select("result_access")
         .eq("id", 1)
-        .single();
+        .maybeSingle();
 
       resultAccessState = data?.result_access === true;
     } catch (err) {
@@ -498,7 +498,7 @@ document.addEventListener("DOMContentLoaded", async () => {
      <div class="header">
   <img src="${student?.passport_url || ""}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;" />
 
-  <h2>LORD LUKE.TECH SCHOOL</h2>
+  <h2> WELCOME TO UMOPE SECONDARY SCHOOL</h2>
   <p>Student Result Sheet</p>
 
   <p><b>Name:</b> ${student?.name}</p>

@@ -1,824 +1,232 @@
 /* =========================
-   Portal CSS – Full Upgrade
+   LOGIN PAGE (CLEAN VERSION)
 ========================= */
 
-/* ---------- Reset Basic Styles ---------- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
-  background-color: #f0f2f5;
-}
-
-/* =========================
-   Login Page Styles
-========================= */
 .login-background {
   background: linear-gradient(135deg, #74ebd5, #acb6e5);
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 15px;
 }
 
 .portal-container {
-  max-width: 400px;
-  padding: 40px 35px;
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 380px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   text-align: center;
-  position: relative;
+}
+
+.portal-container img {
+  width: 90px;
+  height: auto;
+  margin-bottom: 10px;
 }
 
 .portal-container h1 {
-  margin-bottom: 25px;
-  color: #007bff;
-  font-size: 32px;
-  font-weight: 600;
+  color: #1e3a8a;
+  font-size: 22px;
+  margin-bottom: 10px;
 }
 
-.school-logo {
-  width: 100px;
-  margin-bottom: 20px;
+.login-welcome {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.portal-container label {
+  display: block;
+  text-align: left;
+  font-size: 13px;
+  margin-top: 10px;
+  color: #333;
 }
 
 .portal-container input {
   width: 100%;
   padding: 12px;
-  margin-bottom: 15px;
+  margin-top: 5px;
   border-radius: 8px;
   border: 1px solid #ccc;
-  font-size: 16px;
+  outline: none;
+}
+
+.portal-container input:focus {
+  border-color: #1e3a8a;
 }
 
 .portal-container button {
   width: 100%;
   padding: 12px;
-  background-color: #007bff;
-  color: #fff;
+  margin-top: 15px;
   border: none;
   border-radius: 8px;
+  background: #1e3a8a;
+  color: white;
+  font-weight: bold;
   cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s;
+  transition: 0.2s;
 }
 
 .portal-container button:hover {
-  background-color: #0056b3;
+  background: #0f2557;
 }
 
 #login-message {
-  margin-top: 12px;
-  font-weight: bold;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.portal-container a {
+  display: block;
+  margin-top: 15px;
+  font-size: 13px;
+  color: #1e3a8a;
+  text-decoration: none;
 }
 
 /* =========================
-   Dashboard Styles
+   LORD LUKE PORTAL CSS v2
+   PART 1: BASE SYSTEM
 ========================= */
-.dashboard-container {
-  max-width: 1000px;
-  margin: 50px auto;
-  padding: 30px;
-  background-color: #f8f9fa;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* ---------- Header ---------- */
-header {
+/* BODY */
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f9;
+  color: #1f2937;
+  overflow-x: hidden;
+}
+
+/* IMAGES */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* MAIN WRAPPER */
+.dashboard-container {
+  width: 95%;
+  max-width: 1100px;
+  margin: 25px auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* TEXT GLOBAL */
+h1,
+h2,
+h3 {
+  color: #1e3a8a;
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* =========================
+   PART 2: HEADER SYSTEM
+========================= */
+
+.dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+
+  padding: 25px;
   margin-bottom: 20px;
+
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
 }
 
+/* LEFT (SCHOOL LOGO) */
 .header-left {
   display: flex;
   align-items: center;
-  gap: 15px;
 }
 
-.header-left h1 {
-  font-size: 22px;
-  color: #007bff;
-}
-
-/* Logout button in header */
-header button {
-  padding: 10px 20px;
-  background-color: #ff4d4f;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-header button:hover {
-  background-color: #d9363e;
-}
-
-/* ---------- Main Panels ---------- */
-main {
-  display: flex;
-  gap: 40px;
-  flex-wrap: wrap;
-}
-
-/* Student Info & Results Panels */
-.student-info,
-.student-results {
-  flex: 1 1 400px;
-  background-color: #ffffff;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-}
-
-.student-info h2,
-.student-results h2 {
-  margin-bottom: 15px;
-  color: #007bff;
-}
-
-/* Results Table */
-.student-results table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 16px;
-}
-
-.student-results th,
-.student-results td {
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
-}
-
-.student-results th {
-  background-color: #007bff;
-  color: white;
-}
-
-.student-results tr:nth-child(even) {
-  background-color: #e9f0f7;
-}
-
-.student-results tr:hover {
-  background-color: #d0e2f2;
-  transition: background 0.3s;
-}
-
-/* ---------- School News ---------- */
-.school-news {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 30px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-}
-
-.school-news h2 {
-  color: #007bff;
-  margin-bottom: 10px;
-}
-
-.school-news li {
-  margin-bottom: 8px;
-}
-
-/* =========================
-   Responsive Design
-========================= */
-@media (max-width: 768px) {
-  main {
-    flex-direction: column;
-    gap: 25px;
-  }
-
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-}
-
-/* ---------- Header Layout ---------- */
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 30px;
-  background-color: #f8f9fa;
-  border-radius: 12px;
-  margin-bottom: 30px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Left – Logo */
-.dashboard-header .header-left .school-logo {
-  width: 120px; /* larger logo for clarity */
+.school-logo {
+  width: 120px;
   height: auto;
 }
 
-/* Center – Welcome */
-.dashboard-header .header-center h1 {
-  font-size: 24px;
-  color: #007bff;
+/* CENTER */
+.header-center {
+  flex: 1;
   text-align: center;
-  margin: 0;
 }
 
-/* Right – Profile + Logout */
-.dashboard-header .header-right {
+.header-center h1 {
+  font-size: 18px;
+}
+
+/* RIGHT (PROFILE) */
+.header-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
-/* Profile Picture */
+/* PROFILE IMAGE */
 .student-profile {
-  width: 120px; /* professional size */
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover; /* image fits perfectly */
-  border: 3px solid #007bff;
-}
-
-/* Logout Button */
-#logout-btn {
-  padding: 10px 20px;
-  background-color: #ff4d4f;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-#logout-btn:hover {
-  background-color: #d9363e;
-}
-
-/* Responsive for small screens */
-@media (max-width: 768px) {
-  .dashboard-header {
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
-  }
-  .header-right {
-    gap: 10px;
-  }
-}
-
-/* Increase School Logo */
-.dashboard-header .header-left .school-logo {
-  width: 150px; /* bigger logo */
-  height: auto;
-}
-
-/* Increase Student Profile Picture */
-
-/* ---------- Shake Animation ---------- */
-@keyframes shake {
-  0% {
-    transform: translateX(0);
-  }
-  20% {
-    transform: translateX(-5px);
-  }
-  40% {
-    transform: translateX(5px);
-  }
-  60% {
-    transform: translateX(-5px);
-  }
-  80% {
-    transform: translateX(5px);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-/* ---------- Login Form Hover Effect ---------- */
-.portal-container:hover {
-  animation: shake 0.5s;
-}
-
-/* Button hover effect */
-.portal-container button:hover {
-  background-color: #0056b3; /* keeps professional blue hover */
-  transform: scale(1.05); /* slight grow effect for attention */
-}
-
-/* Academic Summary */
-.academic-summary {
-  margin-top: 20px;
-  padding: 15px;
-  background: #f1f7ff;
-  border-radius: 10px;
-  border-left: 5px solid #007bff;
-}
-
-.academic-summary h3 {
-  margin-bottom: 10px;
-  color: #007bff;
-}
-
-.id-card {
-  max-width: 400px;
-  margin: 30px auto;
-  padding: 25px;
-  text-align: center;
-  background-color: #f1f7ff;
-  border-radius: 15px;
-  border-left: 5px solid #007bff;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.id-card img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #007bff;
-  margin-bottom: 15px;
-}
-
-.id-card h2 {
-  color: #007bff;
-  margin-bottom: 10px;
-}
-
-/* Toggle Buttons */
-.toggle-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.toggle-buttons button {
-  padding: 10px 20px;
-  background-color: #007bff; /* professional blue */
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.toggle-buttons button:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
-}
-
-/* ID Card Gallery */
-.id-card-gallery {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 15px 0;
-}
-
-.id-card-gallery img {
-  width: 120px; /* larger for better view */
-  height: 120px;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 2px solid #007bff;
-}
-
-/* Back Button in ID Card */
-#id-card-back-btn {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-#id-card-back-btn:hover {
-  background-color: #0056b3;
-}
-
-/* Top Back Button for Results and ID Card */
-.top-back-btn {
-  display: block;
-  margin: 10px auto 20px auto;
-  padding: 12px 25px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: 0.3s;
-  width: fit-content;
-}
-
-.top-back-btn:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
-}
-
-/* Force full viewport fit, no scroll */
-.student-results,
-#id-card-section {
-  height: calc(100vh - 130px); /* header + padding */
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 15px;
-}
-
-.student-results table {
-  width: 100%;
-  max-height: 250px;
-  overflow-y: auto;
-}
-
-.id-card {
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-}
-.id-card-gallery {
-  flex-wrap: wrap;
-}
-
-/* ---------- Dynamic Dashboard Adjustments ---------- */
-
-/* Reduce header height when viewing Results or ID */
-body.viewing-section header.dashboard-header {
-  padding: 10px 20px;
-}
-
-body.viewing-section .header-left .school-logo {
-  width: 80px;
-  height: auto;
-}
-
-/* Back buttons on top */
-#results-back-btn,
-#id-card-back-btn {
-  display: block;
-  margin: 10px auto 20px auto;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 12px 25px;
-  background-color: #ff7f50;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-#results-back-btn:hover,
-#id-card-back-btn:hover {
-  background-color: #ff5722;
-  transform: scale(1.05);
-}
-
-/* ID card unique style */
-#id-card-section .id-card {
-  max-width: 450px;
-  margin: 20px auto;
-  padding: 25px 20px;
-  background: linear-gradient(135deg, #e0f7fa, #80deea);
-  border-radius: 20px;
-  border-left: none;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  text-align: center;
-}
-
-#id-card-section .id-card h2 {
-  font-size: 24px;
-  margin-bottom: 5px;
-}
-
-#id-card-section .id-card p {
-  margin: 4px 0;
-  font-size: 16px;
-  color: #006064;
-}
-
-#id-card-gallery {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 15px;
-}
-
-#id-card-gallery img {
-  width: 90px;
-  height: 90px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 2px solid #006064;
-}
-
-/* Fit everything on screen: no scrolling */
-.student-results,
-#id-card-section {
-  max-height: calc(100vh - 60px);
-  overflow-y: auto;
-  padding-bottom: 20px;
-}
-
-/* Remove extra spacing from results table */
-.student-results table {
-  font-size: 15px;
-}
-
-.student-results th,
-.student-results td {
-  padding: 10px 8px;
-}
-
-/* ============================= */
-/* 🪪 ID CARD DESIGN */
-/* ============================= */
-
-.id-card {
-  width: 320px;
-  margin: 20px auto;
-  padding: 15px;
-  border-radius: 12px;
-  background: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  font-family: Arial, sans-serif;
-}
-
-.id-header {
-  background: #1e3a8a;
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-}
-
-.id-card img {
-  width: 120px;
-  height: 120px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #1e3a8a;
-  margin-bottom: 10px;
 }
 
-#id-card-name {
-  font-size: 20px;
-  margin: 5px 0;
-}
-
-#id-card-id {
-  font-size: 13px;
-  color: gray;
-  word-break: break-word;
-}
-
-#id-card-class {
-  font-weight: bold;
-  margin-top: 5px;
-}
-
-/* ========================= */
-/* 🪪 FRONT & BACK ID CARD LAYOUT */
-/* ========================= */
-
-.id-card {
-  width: 320px;
-  margin: 20px auto;
-  padding: 15px;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  font-family: Arial, sans-serif;
-}
-
-/* FRONT CARD */
-.id-card.front {
-  border: 2px solid #1e3a8a;
-}
-
-/* BACK CARD */
-.id-card.back {
-  background: #f8fafc; /* light gray so it stands out */
-  border: 2px dashed #1e3a8a;
-  margin-top: 25px;
-}
-
-.id-header {
-  background: #1e3a8a;
+/* LOGOUT */
+#logout-btn {
+  padding: 8px 12px;
+  background: #e11d48;
   color: white;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 12px;
-}
-
-.id-card img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #007bff;
-  margin: 10px auto;
-  display: block;
-}
-#id-card-name {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-#id-card-id {
-  font-size: 13px;
-  color: #555;
-  word-break: break-word;
-}
-
-#id-card-class {
-  font-weight: bold;
-  margin-top: 5px;
-}
-
-#qr-placeholder {
-  margin-top: 15px;
-  padding: 20px;
-  border: 1px dashed #999;
-  font-size: 12px;
-  color: gray;
-}
-
-.id-card {
-  width: 320px;
-  min-height: 200px;
-  border-radius: 10px;
-  padding: 15px;
-  text-align: center;
-  background: white;
-  border: 2px solid #000;
-  box-sizing: border-box;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.id-card h3,
-.id-card p {
-  margin: 3px 0;
-  text-align: center;
-}
-.id-card img {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #007bff;
-  margin-bottom: 10px;
-}
-/* =========================================================
-   📱 MOBILE RESPONSIVE FIX (STUDENT DASHBOARD)
-========================================================= */
-
-@media screen and (max-width: 768px) {
-  /* MAIN LAYOUT */
-  .dashboard-container {
-    padding: 10px;
-  }
-
-  /* HEADER STACK */
-  .dashboard-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 10px;
-  }
-
-  .header-left,
-  .header-center,
-  .header-right {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-
-  /* SCHOOL LOGO */
-  .school-logo {
-    width: 60px;
-    height: 60px;
-  }
-
-  /* BUTTONS STACK */
-  .toggle-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .toggle-buttons button {
-    width: 100%;
-  }
-
-  /* FEES SECTION */
-  .student-fees {
-    overflow-x: auto;
-  }
-
-  table {
-    width: 100%;
-    font-size: 12px;
-  }
-
-  th,
-  td {
-    padding: 6px;
-  }
-
-  /* ID CARD */
-  .id-card-wrapper {
-    transform: scale(0.9);
-  }
-
-  .id-card {
-    width: 100%;
-  }
-
-  /* NEWS */
-  .school-news ul {
-    padding-left: 15px;
-  }
-
-  /* TEXT SIZES */
-  h1,
-  h2,
-  h3 {
-    font-size: 16px;
-  }
-
-  p {
-    font-size: 13px;
-  }
-}
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-.dashboard-container {
-  width: 100%;
-  padding: 10px;
-}
-.dashboard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px;
-}
-
-.school-news {
-  background: #fff;
-  padding: 10px 12px;
-  margin: 10px 0;
+  border: none;
   border-radius: 8px;
-  border: 1px solid #eee;
+  cursor: pointer;
 }
 
-.school-news h2 {
-  font-size: 14px;
-  margin-bottom: 5px;
+#logout-btn:hover {
+  background: #be123c;
+}
+/* =========================
+   PART 3: DASHBOARD UI
+========================= */
+
+/* SECTIONS */
+section {
+  margin-top: 15px;
 }
 
-.school-news ul {
-  margin: 0;
-  padding-left: 15px;
+/* PANELS (NEWS STYLE) */
+.panel {
+  background: #ffffff;
+  padding: 20px;
+  margin-top: 15px;
+  border-radius: 12px;
+  border-left: 5px solid #1e3a8a;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-.school-news li {
-  font-size: 13px;
-  padding: 3px 0;
-}
+/* NEWS */
 #studentNewsContainer {
   display: flex;
   flex-direction: column;
@@ -826,97 +234,466 @@ body {
 }
 
 #studentNewsContainer div {
-  background: #f9f9f9;
   padding: 15px;
-  border-left: 5px solid #2a5298;
-  border-radius: 6px;
+  background: #f8fafc;
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
 }
-@media (max-width: 768px) {
-  .dashboard-header {
-    flex-direction: column;
-    text-align: center;
+
+/* RESULTS TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+th {
+  background: #1e3a8a;
+  color: white;
+}
+
+/* FEES */
+#student-amount-due {
+  color: #b91c1c;
+  font-weight: bold;
+}
+#student-amount-paid {
+  color: #15803d;
+  font-weight: bold;
+}
+#student-balance {
+  color: #d97706;
+  font-weight: bold;
+}
+
+/* BUTTONS */
+.toggle-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #1e3a8a;
+  color: white;
+  cursor: pointer;
+}
+
+.action-btn:hover {
+  background: #2563eb;
+}
+/* =========================
+   4 — ID CARD (TRUE PRINT EQUALITY SYSTEM)
+========================= */
+
+.id-card-wrapper {
+  width: 100%;
+  display: block;
+}
+
+/* SCREEN VIEW */
+.id-card {
+  width: 340px;
+  height: 210px;
+
+  margin: 15px auto;
+
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+
+  overflow: hidden;
+}
+
+/* FRONT */
+.id-card.front {
+  background: #ffffff;
+  border: 2px solid #1e3a8a;
+}
+
+/* BACK */
+.id-card.back {
+  background: #f3f4f6;
+  border: 2px dashed #1e3a8a;
+}
+
+/* IMAGE */
+.id-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1e3a8a;
+}
+
+/* TEXT */
+#id-card-name,
+#id-card-class,
+#id-card-id {
+  font-size: 14px;
+  margin: 2px 0;
+}
+
+/* SIGNATURE */
+.signature-box {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+
+.signature-line {
+  width: 120px;
+  border-top: 1px solid #000;
+}
+
+.id-signature {
+  text-align: right;
+  margin-top: 15px;
+  position: relative;
+  right: 10px;
+}
+
+.id-signature img {
+  max-width: 140px;
+  max-height: 50px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: inline-block;
+}
+
+.id-signature .line {
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+/* =========================
+   PRINT — ABSOLUTE CONTROL (FIXES EQUALITY ISSUE)
+========================= */
+
+@media print {
+  /* kill everything */
+  body * {
+    visibility: hidden;
   }
 
-  .toggle-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  /* only show ID */
+  .id-card-wrapper,
+  .id-card-wrapper * {
+    visibility: visible;
   }
 
+  .id-card-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  /* CRITICAL: REMOVE FLEX EFFECT COMPLETELY */
+  .id-card {
+    position: relative;
+
+    width: 85mm !important;
+    height: 55mm !important;
+
+    margin: 5mm auto !important;
+
+    display: block !important;
+
+    box-sizing: border-box;
+
+    overflow: hidden !important;
+
+    page-break-inside: avoid !important;
+
+    padding: 5mm !important;
+  }
+
+  /* FRONT PRINT LOOK */
+  .id-card.front {
+    background: #ffffff !important;
+    border: 2px solid #000 !important;
+  }
+
+  /* BACK PRINT LOOK */
+  .id-card.back {
+    background: #f5f5f5 !important;
+    border: 2px dashed #000 !important;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+}
+/* GLOBAL PRINCIPAL SIGNATURE STYLE */
+.principal-signature {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+}
+/* REMOVE ANY SHAPE AROUND SIGNATURE */
+.id-signature,
+.id-signature * {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.id-signature {
+  margin-top: 25px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+.id-signature img {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+}
+/* SAFE DASHBOARD POLISH (NO STRUCTURE CHANGE) */
+
+.dashboard-container {
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+section {
+  margin-top: 12px;
+  border-radius: 10px;
+}
+
+.toggle-buttons {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+@media screen and (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .container,
+  .dashboard,
+  .student-dashboard {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 10px;
+    box-sizing: border-box;
+  }
   table {
     display: block;
     overflow-x: auto;
     white-space: nowrap;
   }
 
-  .student-info {
-    text-align: center;
-  }
-}
-.panel {
-  background: #ffffff;
-  padding: 20px;
-  margin-top: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  border: 1px solid #eee;
-}
-
-.panel h2 {
-  font-size: 22px;
-  font-weight: bold;
-  color: #1e3c72;
-  margin-bottom: 15px;
-  border-left: 5px solid #2a5298;
-  padding-left: 10px;
-}
-#studentNewsContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-#studentNewsContainer div {
-  background: linear-gradient(135deg, #f8fbff, #ffffff);
-  border-left: 6px solid #2a5298;
-  padding: 15px;
-  border-radius: 10px;
-  transition: 0.2s ease;
-}
-
-#studentNewsContainer div:hover {
-  transform: scale(1.01);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-}
-#studentNewsContainer h3 {
-  margin: 0;
-  font-size: 17px;
-  color: #1e3c72;
-}
-
-#studentNewsContainer p {
-  margin-top: 6px;
-  font-size: 14px;
-  color: #444;
-  line-height: 1.4;
-}
-@media (max-width: 768px) {
+  .card,
+  .box,
   .panel {
-    padding: 15px;
+    width: 100%;
+    margin-bottom: 10px;
   }
 
-  .panel h2 {
-    font-size: 18px;
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
+}
+.container,
+.dashboard,
+.student-dashboard {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px;
+  overflow-x: hidden;
+}
+@media screen and (max-width: 768px) {
+  .top-bar,
+  .header,
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
-  #studentNewsContainer div {
-    padding: 12px;
+  button {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+table {
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+body {
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+.header-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+@media screen and (max-width: 768px) {
+  .header-right {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  #studentNewsContainer h3 {
-    font-size: 15px;
+  #passport-upload,
+  #upload-passport-btn,
+  #logout-btn {
+    width: 100%;
+    max-width: 100%;
   }
 
-  #studentNewsContainer p {
-    font-size: 13px;
+  .student-profile {
+    width: 60px;
+    height: 60px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .header-right {
+    align-items: flex-start;
+  }
+
+  #student-profile {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+}
+.header-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.header-right * {
+  flex-shrink: 1;
+}
+@media screen and (max-width: 768px) {
+  .header-right {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 0;
+    margin-left: 0;
+  }
+
+  #student-profile {
+    width: 40px;
+    height: 40px;
+    margin-left: 0;
+  }
+}
+header {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+.header-right {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  max-width: 100%;
+  min-width: 0; /* VERY IMPORTANT */
+  overflow: hidden;
+}
+@media screen and (max-width: 768px) {
+  #student-profile {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .student-profile,
+  .id-section,
+  .profile-section {
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
+@media screen and (max-width: 420px) {
+  body {
+    overflow-x: hidden;
+  }
+}
+@media screen and (max-width: 768px) {
+  .student-fees table,
+  .fees table,
+  .payment-history table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+}
+@media screen and (max-width: 420px) {
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  th,
+  td {
+    font-size: 12px;
+    min-width: 80px;
   }
 }
