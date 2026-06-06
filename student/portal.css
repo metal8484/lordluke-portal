@@ -109,14 +109,6 @@ header {
   color: #007bff;
 }
 
-.student-profile {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #007bff;
-}
-
 /* Logout button in header */
 header button {
   padding: 10px 20px;
@@ -293,13 +285,6 @@ main {
 }
 
 /* Increase Student Profile Picture */
-.student-profile {
-  width: 140px; /* bigger profile */
-  height: 140px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid #007bff; /* slightly thicker border for style */
-}
 
 /* ---------- Shake Animation ---------- */
 @keyframes shake {
@@ -484,12 +469,6 @@ body.viewing-section header.dashboard-header {
 body.viewing-section .header-left .school-logo {
   width: 80px;
   height: auto;
-}
-
-body.viewing-section .student-profile {
-  width: 80px;
-  height: 80px;
-  border-width: 2px;
 }
 
 /* Back buttons on top */
@@ -739,14 +718,6 @@ body.viewing-section .student-profile {
     justify-content: center;
   }
 
-  /* PROFILE IMAGE */
-  .student-profile {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
   /* SCHOOL LOGO */
   .school-logo {
     width: 60px;
@@ -801,6 +772,151 @@ body.viewing-section .student-profile {
   }
 
   p {
+    font-size: 13px;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+.dashboard-container {
+  width: 100%;
+  padding: 10px;
+}
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+}
+
+.school-news {
+  background: #fff;
+  padding: 10px 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.school-news h2 {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.school-news ul {
+  margin: 0;
+  padding-left: 15px;
+}
+
+.school-news li {
+  font-size: 13px;
+  padding: 3px 0;
+}
+#studentNewsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#studentNewsContainer div {
+  background: #f9f9f9;
+  padding: 15px;
+  border-left: 5px solid #2a5298;
+  border-radius: 6px;
+}
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .toggle-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .student-info {
+    text-align: center;
+  }
+}
+.panel {
+  background: #ffffff;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eee;
+}
+
+.panel h2 {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1e3c72;
+  margin-bottom: 15px;
+  border-left: 5px solid #2a5298;
+  padding-left: 10px;
+}
+#studentNewsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+#studentNewsContainer div {
+  background: linear-gradient(135deg, #f8fbff, #ffffff);
+  border-left: 6px solid #2a5298;
+  padding: 15px;
+  border-radius: 10px;
+  transition: 0.2s ease;
+}
+
+#studentNewsContainer div:hover {
+  transform: scale(1.01);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+#studentNewsContainer h3 {
+  margin: 0;
+  font-size: 17px;
+  color: #1e3c72;
+}
+
+#studentNewsContainer p {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.4;
+}
+@media (max-width: 768px) {
+  .panel {
+    padding: 15px;
+  }
+
+  .panel h2 {
+    font-size: 18px;
+  }
+
+  #studentNewsContainer div {
+    padding: 12px;
+  }
+
+  #studentNewsContainer h3 {
+    font-size: 15px;
+  }
+
+  #studentNewsContainer p {
     font-size: 13px;
   }
 }

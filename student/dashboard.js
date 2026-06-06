@@ -315,14 +315,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("average-score").textContent = avg;
 
-    document.getElementById("performance-level").textContent =
+    let performanceText =
       avg >= 70
-        ? "Excellent"
+        ? "Excellent (Outstanding performance)"
         : avg >= 60
-          ? "Very Good"
+          ? "Very Good (Strong performance)"
           : avg >= 50
-            ? "Good"
-            : "Pass";
+            ? "Good (Average performance)"
+            : "Pass (Needs improvement)";
+
+    document.getElementById("performance-level").textContent = performanceText;
   }
 
   // =========================================================
@@ -440,14 +442,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     const year =
       document.getElementById("filter-session")?.value || "All Years";
 
-    const rows = document.querySelector("#results-page tbody")?.innerHTML;
+    const table = document.querySelector("#results-page table")?.outerHTML;
 
-    if (!rows) {
+    console.log(table);
+
+    if (!table) {
       alert("No results to print");
       return;
     }
 
     const printWindow = window.open("", "_blank", "width=900,height=1000");
+    const avg = document.getElementById("average-score")?.textContent || "0";
+    const performance =
+      document.getElementById("performance-level")?.textContent || "N/A";
 
     printWindow.document.write(`
     <html>
@@ -499,26 +506,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   <p><b>Class:</b> ${student?.class}</p>
   <p><b>Term:</b> ${term}</p>
   <p><b>Year:</b> ${year}</p>
+  <p><b>Average Score:</b> ${avg}</p>
+<p><b>Performance:</b> ${performance}</p>
 </div>
 
      
       
       
-       <table>
-  <thead>
-    <tr>
-      <th>Subject</th>
-      <th>Score</th>
-      <th>Grade</th>
-      <th>Term</th>
-      <th>Year</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    ${rows}
-  </tbody>
-</table>s
+   ${table}
       <div class="signature">
         <div>
           <img src="./images/Registral-sign.png" />
