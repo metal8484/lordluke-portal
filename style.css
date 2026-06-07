@@ -1,20 +1,6 @@
 /* ========================= */
 /* RESET SECTION */
 /* ========================= */
-/* ===============================
-   GLOBAL MOBILE WIDTH FIX
-================================ */
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* stops sideways scrolling */
-  width: 100%;
-}
 * {
   margin: 0;
   padding: 0;
@@ -125,11 +111,10 @@ p {
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  background-attachment: scroll;
+  background-attachment: static;
 
   min-height: 100vh;
-  width: 100%;
-  overflow-x: hidden;
+  background-size: 100%;
 }
 
 /* REMOVE SIDEBAR */
