@@ -452,7 +452,9 @@ document.addEventListener("DOMContentLoaded", async function () {
           year,
           total_fee: total_fee || amount_due,
           amount_due,
+          amount_paid: 0,
           balance: amount_due,
+          status: "Unpaid",
           created_at: new Date().toISOString(),
         },
       ])
@@ -534,7 +536,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const student_id = document.getElementById("payment_student_id").value;
     const amount_paid = Number(document.getElementById("payment_amount").value);
 
-    const term = document.getElementById("term")?.value || "Current";
     if (!student_id || !amount_paid) {
       alert("Select student and enter amount");
       return;
@@ -561,7 +562,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       alert("Fee record not found");
       return;
     }
+    const term = feeData.term || "Current";
 
+    const year = feeData.year || new Date().getFullYear().toString();
     // =====================================================
     // CALCULATIONS
     // =====================================================
@@ -608,6 +611,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           amount_paid,
           term,
           year,
+          balance_after: newBalance,
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -657,19 +661,19 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    tableBody.innerHTML = "";
-
     (data || []).forEach((p) => {
       tableBody.innerHTML += `
-      <tr>
-        <td>${p.student_id}</td>
-        <td>${p.amount_paid}</td>
-        <td>${p.term}</td>
-        <td>${p.year}</td>
-        <td>${p.balance_after}</td>
-        <td>${new Date(p.timestamp).toLocaleString()}</td>
-      </tr>
-    `;
+    <tr>
+      <td>${p.id}</td>
+      <td>${p.student_id}</td>
+      <td>${p.term}</td>
+      <td>${p.year}</td>
+      <td>${p.amount_paid}</td>
+      <td>${new Date(p.timestamp).toLocaleString()}</td>
+      <td>${p.balance_after}</td>
+      <td>${p.session || "-"}</td>
+    </tr>
+  `;
     });
 
     console.log("✅ Payment history loaded:", data?.length || 0);

@@ -697,3 +697,7 @@ header {
     min-width: 80px;
   }
 }
+.slider-container {
+  width: 60%;
+  max-width: 750px;
+}
