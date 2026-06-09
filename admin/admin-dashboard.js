@@ -685,6 +685,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     loadFees();
     loadPayments();
     loadNews();
+    loadResetRequests(); // optional but good initial load
+    listenForResetRequests(); // 🔥 THIS IS THE REAL-TIME ENGINE
   }, 300);
 });
 
@@ -1009,3 +1011,94 @@ document
 setTimeout(() => {
   loadScratchCards();
 }, 500);
+
+async function loadResetRequests() {
+  const { data, error } = await supabaseClient
+    .from("password_reset_requests")
+    .select("*")
+    .order("id", { ascending: false });
+
+  const table = document.getElementById("resetBody");
+
+  if (!table) return;
+
+  table.innerHTML = "";
+
+  if (error) {
+    console.log(error);
+    table.innerHTML = `<tr><td colspan="3">Error loading requests</td></tr>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    table.innerHTML = `<tr><td colspan="3">No requests found</td></tr>`;
+    return;
+  }
+
+  data.forEach((req) => {
+    const row = document.createElement("tr");
+
+    let statusColor = "🟡";
+    if (req.status === "Done") statusColor = "🟢";
+    if (req.status === "Cancelled") statusColor = "🔴";
+
+    row.innerHTML = `
+      <td>${req.student_email}</td>
+      <td>${statusColor} ${req.status}</td>
+      <td>
+        <button onclick="markResetDone('${req.id}')">Done</button>
+        <button onclick="cancelReset('${req.id}')">Cancel</button>
+      </td>
+    `;
+
+    table.appendChild(row);
+  });
+  loadResetRequests();
+}
+async function markResetDone(id) {
+  const { error } = await supabaseClient
+    .from("password_reset_requests")
+    .update({ status: "Done" })
+    .eq("id", id);
+
+  if (error) {
+    alert("Failed to update");
+    return;
+  }
+
+  loadResetRequests();
+}
+async function cancelReset(id) {
+  const confirmCancel = confirm("Cancel this request?");
+  if (!confirmCancel) return;
+
+  const { error } = await supabaseClient
+    .from("password_reset_requests")
+    .update({ status: "Cancelled" })
+    .eq("id", id);
+
+  if (error) {
+    alert("Failed to cancel");
+    return;
+  }
+
+  loadResetRequests();
+}
+function listenForResetRequests() {
+  supabaseClient
+    .channel("password_reset_channel")
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "password_reset_requests",
+      },
+      (payload) => {
+        console.log("REALTIME UPDATE:", payload);
+
+        // reload table instantly
+      },
+    )
+    .subscribe();
+}
