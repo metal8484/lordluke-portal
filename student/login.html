@@ -13,9 +13,69 @@
     <script>
       const supabaseUrl = "https://iupwqyksdntdccnzoxrb.supabase.co";
       const supabaseKey = "sb_publishable_hUYF2MqC5s12fi-3mRoSng_-pwwzK2V";
-
       const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
     </script>
+
+    <style>
+      /* ================= MODAL DESIGN ================= */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+
+      .modal-box {
+        width: 90%;
+        max-width: 420px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        animation: pop 0.25s ease;
+      }
+
+      @keyframes pop {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .modal-box h2 {
+        color: #2d7ff9;
+        margin-bottom: 10px;
+      }
+
+      .modal-box p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #333;
+      }
+
+      .modal-box button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        background: #2d7ff9;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .modal-box button:hover {
+        background: #1b5fd6;
+      }
+    </style>
   </head>
 
   <body>
@@ -27,129 +87,41 @@
 
         <p class="login-welcome">Enter your email and password to continue</p>
 
-        <!-- LOGIN FORM -->
         <form id="login-form">
           <label>Email</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="Enter your email"
-            required
-          />
+          <input type="email" id="email" required />
 
           <label>Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Enter your password"
-            required
-          />
+          <input type="password" id="password" required />
 
           <button type="submit">Login</button>
 
-          <!-- ✅ FORGOT PASSWORD ADDED SAFELY -->
           <p class="forgot-password">
             <a href="#" id="forgotPasswordLink">Forgot Password?</a>
           </p>
         </form>
 
         <p id="login-message"></p>
-
         <a href="../index.html">Back to Main Website</a>
       </div>
     </div>
 
-    <!-- ================= LOGIN SCRIPT ================= -->
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("login-form");
-        const message = document.getElementById("login-message");
+    <!-- ================= MODAL ================= -->
+    <div id="successModal" class="modal-overlay">
+      <div class="modal-box">
+        <h2>✅ Request Sent</h2>
 
-        // ================= LOGIN (UNCHANGED) =================
-        form.addEventListener("submit", async (e) => {
-          e.preventDefault();
+        <p>
+          📩 be Checking your Email, SMS, or WhatsApp.<br /><br />
+          📞 You may receive a call from your registered number.<br /><br />
+          ⏳ Processing may take up to 24 hours.<br /><br />
+          🙏 Please do not submit multiple requests.
+        </p>
 
-          const email = document.getElementById("email").value.trim();
-          const password = document.getElementById("password").value.trim();
+        <button id="closeModal">OK</button>
+      </div>
+    </div>
 
-          if (!email || !password) {
-            message.textContent = "❌ Please fill all fields!";
-            message.style.color = "red";
-            return;
-          }
-
-          try {
-            const { data, error } =
-              await supabaseClient.auth.signInWithPassword({
-                email,
-                password,
-              });
-
-            console.log("LOGIN RESULT:", { data, error });
-
-            if (error) {
-              message.textContent = "❌ " + error.message;
-              message.style.color = "red";
-              return;
-            }
-
-            message.textContent = "✅ Login Successful!";
-            message.style.color = "green";
-
-            localStorage.setItem("loggedIn", "true");
-
-            setTimeout(() => {
-              window.location.href = "student-dashboard.html";
-            }, 800);
-          } catch (err) {
-            console.error(err);
-            message.textContent = "❌ Server error, try again!";
-            message.style.color = "red";
-          }
-        });
-
-        // ================= FORGOT PASSWORD (NEW SAFE ADDITION) =================
-        document.addEventListener("click", async (e) => {
-          if (e.target && e.target.id === "forgotPasswordLink") {
-            e.preventDefault();
-
-            console.log("Forgot password clicked");
-
-            const email = prompt("Enter your registered email address:");
-
-            if (!email) return;
-
-            try {
-              const { data, error } = await supabaseClient
-                .from("password_reset_requests")
-                .insert([
-                  {
-                    student_email: email.trim(),
-                    status: "Pending",
-                  },
-                ])
-                .select();
-
-              console.log("INSERT RESULT:", { data, error });
-
-              if (error) {
-                alert("❌ Failed: " + error.message);
-                return;
-              }
-
-              if (!data || data.length === 0) {
-                alert("⚠️ No data inserted. Check Supabase table or RLS.");
-                return;
-              }
-
-              alert("✅ Password reset request sent successfully!");
-            } catch (err) {
-              console.error("ERROR:", err);
-              alert("❌ Unexpected error occurred");
-            }
-          }
-        });
-      });
-    </script>
+    <script src="login.js"></script>
   </body>
 </html>

@@ -409,6 +409,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       ?.addEventListener("click", async () => {
         const file = document.getElementById("passport-upload").files[0];
         if (!file) return alert("Select image");
+        // ======================================
+        // BLOCK SECOND PASSPORT UPLOAD
+        // ======================================
+        if (
+          student?.passport_url &&
+          student?.passport_change_allowed !== true
+        ) {
+          alert(
+            "Passport photo already uploaded. Contact the school administrator if you need to change it.",
+          );
+          return;
+        }
 
         const path = `${user.id}_${Date.now()}_${file.name}`;
 
@@ -420,10 +432,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           .from("student-passports")
           .getPublicUrl(path);
 
-        await supabaseClient
+        const { error: updateError } = await supabaseClient
           .from("students")
-          .update({ passport_url: data.publicUrl })
+          .update({
+            passport_url: data.publicUrl,
+            passport_change_allowed: false,
+          })
           .eq("auth_user_id", user.id);
+
+        if (updateError) {
+          console.log("PASSPORT UPDATE ERROR:", updateError);
+          alert(updateError.message);
+          return;
+        }
 
         document.getElementById("student-profile").src = data.publicUrl;
         document.getElementById("id-card-img").src = data.publicUrl;
@@ -498,7 +519,7 @@ document.addEventListener("DOMContentLoaded", async () => {
      <div class="header">
   <img src="${student?.passport_url || ""}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;" />
 
-  <h2> WELCOME TO UMOPE SECONDARY SCHOOL</h2>
+  <h2>UMOPE SECONDARY SCHOOL</h2>
   <p>Student Result Sheet</p>
 
   <p><b>Name:</b> ${student?.name}</p>

@@ -39,7 +39,65 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const studentsTable = document.querySelector("#students-table tbody");
   const resultsTable = document.querySelector("#results-table tbody");
+  const resultSearch = document.getElementById("result-search");
+  const adminFilterBtn = document.getElementById("admin-filter-btn");
+  const averageCard = document.getElementById("average-card");
+
   const adminsTable = document.querySelector("#admins-table tbody");
+  // =========================================================
+  // 🔍 ADMIN RESULT FILTER
+  // =========================================================
+  if (adminFilterBtn) {
+    adminFilterBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const term = document
+        .getElementById("admin-filter-term")
+        .value.toLowerCase()
+        .trim();
+
+      const year = document
+        .getElementById("admin-filter-year")
+        .value.toLowerCase()
+        .trim();
+
+      const student = document
+        .getElementById("result-search")
+        .value.toLowerCase()
+        .trim();
+
+      let totalScore = 0;
+      let totalSubjects = 0;
+      document
+        .querySelectorAll("#results-table tbody .result-row")
+        .forEach((row) => {
+          const rowTerm = (row.dataset.term || "").toLowerCase().trim();
+          const rowYear = (row.dataset.year || "").toLowerCase().trim();
+          const rowStudent = row.cells[0].textContent.toLowerCase().trim();
+
+          const studentMatch = !student || rowStudent.includes(student);
+          const termMatch = !term || rowTerm.includes(term);
+          const yearMatch = !year || rowYear.includes(year);
+
+          row.style.display =
+            studentMatch && termMatch && yearMatch ? "" : "none";
+          if (studentMatch && termMatch && yearMatch) {
+            totalScore += Number(row.dataset.score || 0);
+            totalSubjects++;
+          }
+        });
+      if (averageCard) {
+        if (totalSubjects > 0) {
+          averageCard.style.display = "block";
+          document.getElementById("average-value").textContent = (
+            totalScore / totalSubjects
+          ).toFixed(2);
+        } else {
+          averageCard.style.display = "none";
+        }
+      }
+    });
+  }
 
   // =========================================================
   // LOGIN PROTECTION
@@ -126,6 +184,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const { data: students } = await supabaseClient
       .from("students")
       .select("*");
+    allStudentsCache = students || [];
     const { data: results } = await supabaseClient.from("results").select("*");
     const { data: admins } = await supabaseClient.from("admins").select("*");
 
@@ -133,47 +192,72 @@ document.addEventListener("DOMContentLoaded", async function () {
     studentsTable.innerHTML = "";
     (students || []).forEach((s) => {
       studentsTable.innerHTML += `
-        <tr class="student-row"
-            data-id="${s.auth_user_id}"
-            data-name="${s.name}"
-            data-class="${s.class}">
-          <td>${s.name}</td>
-          <td>${s.auth_user_id}</td>
-          <td>${s.class}</td>
-          <td>
-            <button class="delete-student-btn" data-id="${s.auth_user_id}">
-              Delete
-            </button>
-          </td>
-        </tr>
-      `;
+    <tr class="student-row"
+        data-id="${s.auth_user_id}"
+        data-name="${s.name}"
+        data-class="${s.class}"
+        data-phone="${s.phone || ""}">
+        
+      
+       <td>
+  <input
+    type="checkbox"
+    class="promote-student"
+    data-id="${s.auth_user_id}"
+    data-class="${s.class}"
+  >
+</td>
+
+<td>${s.name}</td>
+<td>${s.auth_user_id}</td>
+<td>${s.class}</td>
+<td>${s.phone || "No phone"}</td>
+      <td>
+        <button class="delete-student-btn" data-id="${s.auth_user_id}">
+          Delete
+        </button>
+      </td>
+    </tr>
+  `;
     });
     resultsTable.innerHTML = "";
-    (results || []).forEach((r) => {
+
+    for (const r of results || []) {
+      const { data: studentInfo } = await supabaseClient
+        .from("students")
+        .select("name, phone")
+        .eq("auth_user_id", r.student_id)
+        .single();
+
       resultsTable.innerHTML += `
     <tr class="result-row"
         data-id="${r.id}"
         data-student="${r.student_id}"
+        data-name="${studentInfo?.name || ""}"
         data-subject="${r.subject}"
         data-score="${r.score}"
-        data-term="${r.term}"
-        data-year="${r.year}"
+        data-term="${r.term || ""}"
+        data-year="${r.year || ""}">
 
-      <td>${r.student_id}</td>
+      <td>${studentInfo?.name || "Unknown Student"}</td>
       <td>${r.subject}</td>
       <td>${r.score}</td>
-      <td>${r.term || "N/A"}</td>
-       <td>${r.year || "N/A"}</td>
+      <td>${r.term || ""}</td>
+      <td>${r.year || ""}</td>
 
-      <td>
-        <button class="delete-result-btn" data-id="${r.id}">
-          Delete
-        </button>
-      </td>
+     <td>
+  <button class="edit-result-btn" data-id="${r.id}">
+    Edit
+  </button>
+
+  <button class="delete-result-btn" data-id="${r.id}">
+    Delete
+  </button>
+</td>
 
     </tr>
   `;
-    });
+    }
     // ADMINS
     adminsTable.innerHTML = "";
     (admins || []).forEach((a) => {
@@ -225,20 +309,34 @@ document.addEventListener("DOMContentLoaded", async function () {
     const row = e.target.closest(".result-row");
     if (!row) return;
 
+    // ================= EDIT RESULT =================
+    if (e.target.classList.contains("edit-result-btn")) {
+      document.getElementById("result-student-id").value = row.dataset.student;
+
+      document.getElementById("result-subject").value = row.dataset.subject;
+
+      document.getElementById("result-score").value = row.dataset.score;
+
+      document.getElementById("result-term").value = row.dataset.term || "";
+
+      document.getElementById("result-year").value = row.dataset.year || "";
+
+      AppState.editResultId = row.dataset.id;
+
+      alert("Result loaded for editing");
+      return;
+    }
+
+    // ================= DELETE RESULT =================
     if (e.target.classList.contains("delete-result-btn")) {
       await supabaseClient
         .from("results")
         .delete()
         .eq("id", e.target.dataset.id);
+
       loadAll();
       return;
     }
-
-    document.getElementById("result-student-id").value = row.dataset.student;
-    document.getElementById("result-subject").value = row.dataset.subject;
-    document.getElementById("result-score").value = row.dataset.score;
-
-    AppState.editResultId = row.dataset.id;
   });
 
   // =========================================================
@@ -273,16 +371,19 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const name = document.getElementById("student-name").value.trim();
       const className = document.getElementById("student-class").value.trim();
-      const password = document.getElementById("student-password").value;
-
-      // safer email format
-      const safeName = name.toLowerCase().replace(/\s+/g, "");
       const email = document.getElementById("student-email").value.trim();
+      const phone = document.getElementById("student-phone").value.trim();
+      const password = document.getElementById("student-password").value;
 
       if (AppState.editStudentId) {
         await supabaseClient
           .from("students")
-          .update({ name, class: className })
+          .update({
+            name,
+            class: className,
+            email,
+            phone, // ✅ MUST MATCH COLUMN NAME IN SUPABASE
+          })
           .eq("auth_user_id", AppState.editStudentId);
 
         AppState.editStudentId = null;
@@ -292,19 +393,14 @@ document.addEventListener("DOMContentLoaded", async function () {
             email,
             password,
           });
-        console.log("AUTH RESULT:", authData);
-        console.log("AUTH ERROR:", authError);
+
         if (authError) {
-          console.log(authError);
           alert(authError.message);
           return;
         }
 
-        if (!authData?.user?.id) {
-          alert("Auth failed: no user created");
-          return;
-        }
-        const studentNumber = `LUKE/2026/${String(Date.now()).slice(-3)}`;
+        const count = Date.now().toString().slice(-3);
+        const studentNumber = `STD${count}`;
 
         const { error: insertError } = await supabaseClient
           .from("students")
@@ -312,12 +408,14 @@ document.addEventListener("DOMContentLoaded", async function () {
             {
               name,
               class: className,
+              email,
+              phone, // ✅ THIS IS THE IMPORTANT PART
               auth_user_id: authData.user.id,
               student_number: studentNumber,
             },
           ]);
+
         if (insertError) {
-          console.log(insertError);
           alert(insertError.message);
           return;
         }
@@ -327,7 +425,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       loadAll();
       loadStudentDropdown();
     });
-
   // =========================================================
   // RESULT ADD / EDIT
   // =========================================================
@@ -685,78 +782,105 @@ document.addEventListener("DOMContentLoaded", async function () {
     loadFees();
     loadPayments();
     loadNews();
-    loadResetRequests(); // optional but good initial load
-    listenForResetRequests(); // 🔥 THIS IS THE REAL-TIME ENGINE
+    loadResetRequests();
+    loadPassportPermissions();
+    listenForResetRequests();
   }, 300);
-});
+  if (resultSearch) {
+    resultSearch.addEventListener("input", () => {
+      const keyword = resultSearch.value.toLowerCase().trim();
 
-// =========================================================
-// 📰 NEWS SYSTEM
-// =========================================================
+      document
+        .querySelectorAll("#results-table tbody .result-row")
+        .forEach((row) => {
+          const studentName = row.cells[0].textContent.toLowerCase();
 
-const newsForm = document.getElementById("news-form");
-
-async function loadNews() {
-  const { data, error } = await supabaseClient
-    .from("news")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.log("News load error:", error.message);
-    return;
+          row.style.display = studentName.includes(keyword) ? "" : "none";
+        });
+    });
   }
+  // =========================================================
+  // 🔍 RESULT SEARCH
+  // =========================================================
 
-  const newsBody = document.getElementById("newsBody");
-  if (!newsBody) return;
+  document.getElementById("result-search")?.addEventListener("keyup", () => {
+    const keyword = document
+      .getElementById("result-search")
+      .value.toLowerCase();
 
-  newsBody.innerHTML = "";
+    document.querySelectorAll("#results-table tbody tr").forEach((row) => {
+      const text = row.textContent.toLowerCase();
 
-  (data || []).forEach((n) => {
-    newsBody.innerHTML += `
+      row.style.display = text.includes(keyword) ? "" : "none";
+    });
+  });
+  // =========================================================
+  // 📰 NEWS SYSTEM
+  // =========================================================
+
+  const newsForm = document.getElementById("news-form");
+
+  async function loadNews() {
+    const { data, error } = await supabaseClient
+      .from("news")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log("News load error:", error.message);
+      return;
+    }
+
+    const newsBody = document.getElementById("newsBody");
+    if (!newsBody) return;
+
+    newsBody.innerHTML = "";
+
+    (data || []).forEach((n) => {
+      newsBody.innerHTML += `
         <tr>
           <td>${n.title}</td>
           <td>${n.message}</td>
         </tr>
       `;
-  });
-}
+    });
+  }
 
-if (newsForm) {
-  newsForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    console.log("NEWS FORM CLICKED");
-    const title = document.getElementById("news-title").value;
-    const message = document.getElementById("news-message").value;
+  if (newsForm) {
+    newsForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      console.log("NEWS FORM CLICKED");
+      const title = document.getElementById("news-title").value;
+      const message = document.getElementById("news-message").value;
 
-    const { error } = await supabaseClient
+      const { error } = await supabaseClient
+        .from("news")
+        .insert([{ title, message }]);
+
+      if (error) {
+        console.log(error);
+        alert("Failed to post news");
+        return;
+      }
+
+      alert("News posted successfully");
+
+      newsForm.reset();
+      loadNews();
+    });
+  }
+
+  async function loadAdminNews() {
+    const { data } = await supabaseClient
       .from("news")
-      .insert([{ title, message }]);
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    if (error) {
-      console.log(error);
-      alert("Failed to post news");
-      return;
-    }
+    const container = document.getElementById("newsBody");
+    container.innerHTML = "";
 
-    alert("News posted successfully");
-
-    newsForm.reset();
-    loadNews();
-  });
-}
-
-async function loadAdminNews() {
-  const { data } = await supabaseClient
-    .from("news")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  const container = document.getElementById("newsBody");
-  container.innerHTML = "";
-
-  data.forEach((n) => {
-    container.innerHTML += `
+    data.forEach((n) => {
+      container.innerHTML += `
       <div style="border:1px solid #ccc;padding:10px;margin:10px 0;">
         <h3>${n.title}</h3>
         <p>${n.message}</p>
@@ -765,64 +889,62 @@ async function loadAdminNews() {
         <button onclick="editNews('${n.id}', '${n.title}', '${n.message}')">Edit</button>
       </div>
     `;
-  });
-}
-
-async function deleteNews(id) {
-  const confirmDelete = confirm("Delete this news?");
-  if (!confirmDelete) return;
-
-  const { error } = await supabaseClient.from("news").delete().eq("id", id);
-
-  if (error) {
-    alert("Delete failed");
-    return;
+    });
   }
 
-  alert("News deleted");
-  loadAdminNews();
-}
+  async function deleteNews(id) {
+    const confirmDelete = confirm("Delete this news?");
+    if (!confirmDelete) return;
 
-async function editNews(id, oldTitle, oldMessage) {
-  const title = prompt("Edit title:", oldTitle);
-  const message = prompt("Edit message:", oldMessage);
+    const { error } = await supabaseClient.from("news").delete().eq("id", id);
 
-  if (!title || !message) return;
+    if (error) {
+      alert("Delete failed");
+      return;
+    }
 
-  const { error } = await supabaseClient
-    .from("news")
-    .update({ title, message })
-    .eq("id", id);
-
-  if (error) {
-    alert("Update failed");
-    return;
+    alert("News deleted");
+    loadAdminNews();
   }
 
-  alert("News updated");
-  loadAdminNews();
-}
-document.addEventListener("DOMContentLoaded", () => {
-  loadAdminNews();
-});
-async function loadNews() {
-  const { data, error } = await supabaseClient
-    .from("news")
-    .select("*")
-    .order("created_at", { ascending: false });
+  async function editNews(id, oldTitle, oldMessage) {
+    const title = prompt("Edit title:", oldTitle);
+    const message = prompt("Edit message:", oldMessage);
 
-  if (error) {
-    console.log("NEWS ERROR:", error);
-    return;
+    if (!title || !message) return;
+
+    const { error } = await supabaseClient
+      .from("news")
+      .update({ title, message })
+      .eq("id", id);
+
+    if (error) {
+      alert("Update failed");
+      return;
+    }
+
+    alert("News updated");
+    loadAdminNews();
   }
 
-  const tbody = document.getElementById("newsBody");
-  if (!tbody) return;
+  async function loadNews() {
+    const { data, error } = await supabaseClient
+      .from("news")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  tbody.innerHTML = "";
+    if (error) {
+      console.log("NEWS ERROR:", error);
+      return;
+    }
 
-  data.forEach((n) => {
-    tbody.innerHTML += `
+    const tbody = document.getElementById("newsBody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    data.forEach((n) => {
+      tbody.innerHTML += `
       <tr>
         <td>${n.title}</td>
         <td>${n.message}</td>
@@ -832,99 +954,102 @@ async function loadNews() {
         </td>
       </tr>
     `;
-  });
-}
-// =====================================================
-// 🎛 RESULT ACCESS CONTROL
-// =====================================================
-
-async function loadResultAccessStatus() {
-  const { data, error } = await supabaseClient
-    .from("offon")
-    .select("*")
-    .eq("id", 1)
-    .single();
-
-  if (error) {
-    console.log(error);
-    return;
+    });
   }
+  // =====================================================
+  // 🎛 RESULT ACCESS CONTROL
+  // =====================================================
 
-  const statusText = document.getElementById("resultStatusText");
+  async function loadResultAccessStatus() {
+    console.log("window.supabaseClient =", window.supabaseClient);
+    console.log("local supabaseClient =", supabaseClient);
 
-  if (!statusText) return;
-
-  statusText.textContent = data.result_access
-    ? "✅ Result checking is ENABLED"
-    : "❌ Result checking is DISABLED";
-}
-
-// ENABLE RESULT
-document
-  .getElementById("enableResultBtn")
-  ?.addEventListener("click", async () => {
-    const { error } = await supabaseClient
+    const { data, error } = await supabaseClient
       .from("offon")
-      .update({ result_access: true })
-      .eq("id", 1);
+      .select("*")
+      .eq("id", 1)
+      .single();
 
     if (error) {
       console.log(error);
-      alert("Failed to enable");
       return;
     }
 
-    alert("Result checking enabled");
+    const statusText = document.getElementById("resultStatusText");
 
-    loadResultAccessStatus();
-  });
+    if (!statusText) return;
 
-// DISABLE RESULT
-document
-  .getElementById("disableResultBtn")
-  ?.addEventListener("click", async () => {
-    const { error } = await supabaseClient
-      .from("offon")
-      .update({ result_access: false })
-      .eq("id", 1);
-
-    if (error) {
-      console.log(error);
-      alert("Failed to disable");
-      return;
-    }
-
-    alert("Result checking disabled");
-
-    loadResultAccessStatus();
-  });
-
-// LOAD STATUS
-loadResultAccessStatus();
-
-// =====================================================
-// 🎫 SCRATCH CARD SYSTEM (FULL FIXED VERSION)
-// =====================================================
-
-async function loadScratchCards() {
-  const { data, error } = await supabaseClient
-    .from("scratch_cards")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.log("SCRATCH LOAD ERROR:", error);
-    return;
+    statusText.textContent = data.result_access
+      ? "✅ Result checking is ENABLED"
+      : "❌ Result checking is DISABLED";
   }
 
-  const tbody = document.getElementById("scratchCardsBody");
+  // ENABLE RESULT
+  document
+    .getElementById("enableResultBtn")
+    ?.addEventListener("click", async () => {
+      const { error } = await supabaseClient
+        .from("offon")
+        .update({ result_access: true })
+        .eq("id", 1);
 
-  if (!tbody) return;
+      if (error) {
+        console.log(error);
+        alert("Failed to enable");
+        return;
+      }
 
-  tbody.innerHTML = "";
+      alert("Result checking enabled");
 
-  (data || []).forEach((card) => {
-    tbody.innerHTML += `
+      loadResultAccessStatus();
+    });
+
+  // DISABLE RESULT
+  document
+    .getElementById("disableResultBtn")
+    ?.addEventListener("click", async () => {
+      const { error } = await supabaseClient
+        .from("offon")
+        .update({ result_access: false })
+        .eq("id", 1);
+
+      if (error) {
+        console.log(error);
+        alert("Failed to disable");
+        return;
+      }
+
+      alert("Result checking disabled");
+
+      loadResultAccessStatus();
+    });
+
+  // LOAD STATUS
+  loadResultAccessStatus();
+
+  // =====================================================
+  // 🎫 SCRATCH CARD SYSTEM (FULL FIXED VERSION)
+  // =====================================================
+
+  async function loadScratchCards() {
+    const { data, error } = await supabaseClient
+      .from("scratch_cards")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log("SCRATCH LOAD ERROR:", error);
+      return;
+    }
+
+    const tbody = document.getElementById("scratchCardsBody");
+
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    (data || []).forEach((card) => {
+      tbody.innerHTML += `
       <tr>
         <td>${card.code}</td>
         <td>${card.used ? "USED" : "UNUSED"}</td>
@@ -937,168 +1062,437 @@ async function loadScratchCards() {
         </td>
       </tr>
     `;
-  });
-}
-
-window.deleteScratchCard = async function (id) {
-  const confirmDelete = confirm("Delete this scratch card?");
-
-  if (!confirmDelete) return;
-
-  const { error } = await supabaseClient
-    .from("scratch_cards")
-    .delete()
-    .eq("id", id);
-
-  if (error) {
-    console.log(error);
-    alert("Delete failed");
-    return;
+    });
   }
 
-  alert("Scratch card deleted");
+  window.deleteScratchCard = async function (id) {
+    const confirmDelete = confirm("Delete this scratch card?");
 
-  loadScratchCards();
-};
+    if (!confirmDelete) return;
 
-document
-  .getElementById("generate-scratch-btn")
-  ?.addEventListener("click", async () => {
-    const count = parseInt(document.getElementById("scratch-count").value);
-
-    if (!count || count <= 0) {
-      alert("Enter valid number");
-      return;
-    }
-
-    const status = document.getElementById("scratch-status");
-
-    status.innerText = "Generating scratch cards...";
-
-    let cards = [];
-
-    for (let i = 0; i < count; i++) {
-      const code =
-        "SCR-" + Math.random().toString(36).substring(2, 10).toUpperCase();
-
-      cards.push({
-        code: code,
-        used: false,
-        student_id: null,
-      });
-    }
-
-    const { error } = await supabaseClient.from("scratch_cards").insert(cards);
+    const { error } = await supabaseClient
+      .from("scratch_cards")
+      .delete()
+      .eq("id", id);
 
     if (error) {
       console.log(error);
-
-      status.innerText = "Failed to generate scratch cards";
-
+      alert("Delete failed");
       return;
     }
 
-    status.innerText = count + " scratch cards generated successfully";
-
-    document.getElementById("scratch-count").value = "";
+    alert("Scratch card deleted");
 
     loadScratchCards();
-  });
+  };
 
-// =====================================================
-// 🚀 LOAD SCRATCH TABLE
-// =====================================================
-setTimeout(() => {
-  loadScratchCards();
-}, 500);
+  document
+    .getElementById("generate-scratch-btn")
+    ?.addEventListener("click", async () => {
+      const count = parseInt(document.getElementById("scratch-count").value);
 
-async function loadResetRequests() {
-  const { data, error } = await supabaseClient
-    .from("password_reset_requests")
-    .select("*")
-    .order("id", { ascending: false });
+      if (!count || count <= 0) {
+        alert("Enter valid number");
+        return;
+      }
 
-  const table = document.getElementById("resetBody");
+      const status = document.getElementById("scratch-status");
 
-  if (!table) return;
+      status.innerText = "Generating scratch cards...";
 
-  table.innerHTML = "";
+      let cards = [];
 
-  if (error) {
-    console.log(error);
-    table.innerHTML = `<tr><td colspan="3">Error loading requests</td></tr>`;
-    return;
+      for (let i = 0; i < count; i++) {
+        const code =
+          "SCR-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+        cards.push({
+          code: code,
+          used: false,
+          student_id: null,
+        });
+      }
+
+      const { error } = await supabaseClient
+        .from("scratch_cards")
+        .insert(cards);
+
+      if (error) {
+        console.log(error);
+
+        status.innerText = "Failed to generate scratch cards";
+
+        return;
+      }
+
+      status.innerText = count + " scratch cards generated successfully";
+
+      document.getElementById("scratch-count").value = "";
+
+      loadScratchCards();
+    });
+
+  // =====================================================
+  // 🚀 LOAD SCRATCH TABLE
+  // =====================================================
+  setTimeout(() => {
+    loadScratchCards();
+  }, 500);
+
+  async function loadResetRequests() {
+    const { data, error } = await supabaseClient
+      .from("password_reset_requests")
+      .select("*")
+      .order("id", { ascending: false });
+
+    const table = document.getElementById("resetBody");
+
+    if (!table) return;
+
+    table.innerHTML = "";
+
+    if (error) {
+      console.log(error);
+      table.innerHTML = `<tr><td colspan="3">Error loading requests</td></tr>`;
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      table.innerHTML = `<tr><td colspan="3">No requests found</td></tr>`;
+      return;
+    }
+
+    data.forEach((req) => {
+      const row = document.createElement("tr");
+
+      let statusColor = "🟡";
+      if (req.status === "Done") statusColor = "🟢";
+      if (req.status === "Cancelled") statusColor = "🔴";
+
+      row.innerHTML = `
+  <td>${req.student_email}</td>
+  <td>${statusColor} ${req.status}</td>
+  <td>
+    <button onclick="markResetDone('${req.id}', '${req.auth_user_id}')">Done</button>
+    <button onclick="cancelReset('${req.id}')">Cancel</button>
+  </td>
+`;
+      table.appendChild(row);
+    });
+    loadResetRequests();
   }
+  async function markResetDone(id) {
+    const newPassword = prompt("Enter new password for student:");
+    if (!newPassword) return;
 
-  if (!data || data.length === 0) {
-    table.innerHTML = `<tr><td colspan="3">No requests found</td></tr>`;
-    return;
-  }
+    // 1. Get request
+    const { data: req, error } = await supabaseClient
+      .from("password_reset_requests")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-  data.forEach((req) => {
-    const row = document.createElement("tr");
+    if (error || !req) {
+      alert("Request not found");
+      return;
+    }
 
-    let statusColor = "🟡";
-    if (req.status === "Done") statusColor = "🟢";
-    if (req.status === "Cancelled") statusColor = "🔴";
-
-    row.innerHTML = `
-      <td>${req.student_email}</td>
-      <td>${statusColor} ${req.status}</td>
-      <td>
-        <button onclick="markResetDone('${req.id}')">Done</button>
-        <button onclick="cancelReset('${req.id}')">Cancel</button>
-      </td>
-    `;
-
-    table.appendChild(row);
-  });
-  loadResetRequests();
-}
-async function markResetDone(id) {
-  const { error } = await supabaseClient
-    .from("password_reset_requests")
-    .update({ status: "Done" })
-    .eq("id", id);
-
-  if (error) {
-    alert("Failed to update");
-    return;
-  }
-
-  loadResetRequests();
-}
-async function cancelReset(id) {
-  const confirmCancel = confirm("Cancel this request?");
-  if (!confirmCancel) return;
-
-  const { error } = await supabaseClient
-    .from("password_reset_requests")
-    .update({ status: "Cancelled" })
-    .eq("id", id);
-
-  if (error) {
-    alert("Failed to cancel");
-    return;
-  }
-
-  loadResetRequests();
-}
-function listenForResetRequests() {
-  supabaseClient
-    .channel("password_reset_channel")
-    .on(
-      "postgres_changes",
+    // 2. Call Edge Function (REAL password reset)
+    const res = await fetch(
+      "https://iupwqyksdntdccnzoxrb.supabase.co/functions/v1/reset-password",
       {
-        event: "*",
-        schema: "public",
-        table: "password_reset_requests",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          request_id: id,
+          auth_user_id: req.auth_user_id,
+          newPassword: newPassword,
+        }),
       },
-      (payload) => {
-        console.log("REALTIME UPDATE:", payload);
+    );
 
-        // reload table instantly
-      },
-    )
-    .subscribe();
-}
+    const result = await res.json();
+    console.log("EDGE RESULT:", result);
+
+    if (!res.ok) {
+      alert("Password reset failed: " + (result.error || "unknown"));
+      return;
+    }
+    // =====================================================
+    // FORCE STUDENT TO CHANGE PASSWORD
+    // =====================================================
+
+    const { error: flagError } = await supabaseClient
+      .from("students")
+      .update({
+        must_change_password: true,
+      })
+      .eq("auth_user_id", req.auth_user_id);
+
+    if (flagError) {
+      console.log(flagError);
+      alert("Password changed but failed to set must_change_password");
+      return;
+    }
+
+    // 3. Update status in DB
+    const { error: updateError } = await supabaseClient
+      .from("password_reset_requests")
+      .update({
+        status: "Done",
+        message: "Password reset successfully",
+      })
+      .eq("id", id);
+
+    if (updateError) {
+      alert("Password updated but status failed");
+      return;
+    }
+
+    // 4. Refresh UI
+    loadResetRequests();
+
+    alert("Password reset completed ✔");
+  }
+  // =====================================================
+  // 🔐 PASSWORD RESET SYSTEM (FIXED & CLEAN)
+  // =====================================================
+
+  async function loadResetRequests() {
+    const { data, error } = await supabaseClient
+      .from("password_reset_requests")
+      .select("*")
+      .order("id", { ascending: false });
+
+    const table = document.getElementById("resetBody");
+    if (!table) return;
+
+    table.innerHTML = "";
+
+    if (error) {
+      console.log(error);
+      table.innerHTML = `<tr><td>Error loading requests</td></tr>`;
+      return;
+    }
+
+    (data || []).forEach((req) => {
+      const row = document.createElement("tr");
+
+      let statusColor = "🟡";
+      if (req.status === "Done") statusColor = "🟢";
+      if (req.status === "Cancelled") statusColor = "🔴";
+
+      row.innerHTML = `
+  <td>${req.student_email}</td>
+  <td>${req.student_phone || "No phone"}</td>
+  <td>${statusColor} ${req.status}</td>
+  <td>
+    <button onclick="markResetDone('${req.id}')">Done</button>
+    <button onclick="cancelReset('${req.id}')">Cancel</button>
+  </td>
+`;
+
+      table.appendChild(row);
+    });
+  }
+  async function cancelReset(id) {
+    const ok = confirm("Cancel this request?");
+    if (!ok) return;
+
+    const { error } = await supabaseClient
+      .from("password_reset_requests")
+      .update({
+        status: "Cancelled",
+        message: "Cancelled by admin",
+      })
+      .eq("id", id);
+
+    if (error) {
+      alert("Cancel failed: " + error.message);
+      return;
+    }
+
+    loadResetRequests();
+  }
+  // =====================================================
+  // 📷 PASSPORT CHANGE PERMISSION SYSTEM
+  // =====================================================
+
+  async function loadPassportPermissions() {
+    const { data, error } = await supabaseClient
+      .from("students")
+      .select("name,class,auth_user_id,passport_change_allowed")
+      .order("name");
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    const tbody = document.getElementById("passportPermissionBody");
+
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    (data || []).forEach((student) => {
+      tbody.innerHTML += `
+      <tr>
+        <td>${student.name}</td>
+        <td>${student.class || "-"}</td>
+        <td>
+          ${student.passport_change_allowed ? "✅ Allowed" : "❌ Not Allowed"}
+        </td>
+        <td>
+          <button onclick="allowPassportChange('${student.auth_user_id}')">
+            Allow Passport Change
+          </button>
+        </td>
+      </tr>
+    `;
+    });
+  }
+
+  window.allowPassportChange = async function (studentId) {
+    const ok = confirm("Allow this student to upload/change passport photo?");
+
+    if (!ok) return;
+
+    const { error } = await supabaseClient
+      .from("students")
+      .update({
+        passport_change_allowed: true,
+      })
+      .eq("auth_user_id", studentId);
+
+    if (error) {
+      console.log(error);
+      alert("Failed");
+      return;
+    }
+
+    alert("Passport change permission granted");
+
+    loadPassportPermissions();
+  };
+  // =====================================================
+  // 🎓 PROMOTE SELECTED STUDENTS
+  // =====================================================
+
+  document
+    .getElementById("promoteSelectedBtn")
+    ?.addEventListener("click", async () => {
+      const selectedStudents = document.querySelectorAll(
+        ".promote-student:checked",
+      );
+
+      if (selectedStudents.length === 0) {
+        alert("Select at least one student");
+        return;
+      }
+      alert(
+        "Promotion started.\n\nPlease wait up to 7 minutes before clicking again.\n\nDo NOT refresh or click Promote twice.",
+      );
+
+      for (const student of selectedStudents) {
+        const studentId = student.dataset.id;
+        const currentClass = student.dataset.class;
+
+        alert("Current Class = " + currentClass);
+
+        let newClass = currentClass;
+
+        if (currentClass === "JSS1") newClass = "JSS2";
+        else if (currentClass === "JSS2") newClass = "JSS3";
+        else if (currentClass === "JSS3") newClass = "SS1";
+        else if (currentClass === "SS1") newClass = "SS2";
+        else if (currentClass === "SS2") newClass = "SS3";
+        else if (currentClass === "SS3") newClass = "GRADUATED";
+
+        await supabaseClient
+          .from("students")
+          .update({
+            class: newClass,
+          })
+          .eq("auth_user_id", studentId);
+      }
+      await loadAll();
+      await loadStudentDropdown();
+
+      alert("Selected students promoted successfully");
+    });
+  document
+    .getElementById("demoteSelectedBtn")
+    ?.addEventListener("click", async () => {
+      const selectedStudents = document.querySelectorAll(
+        ".promote-student:checked",
+      );
+
+      if (selectedStudents.length === 0) {
+        alert("Select at least one student");
+        return;
+      }
+      alert(
+        "Demotion started.\n\nPlease wait until it finishes.\n\nDo NOT refresh or click twice.",
+      );
+
+      for (const student of selectedStudents) {
+        const studentId = student.dataset.id;
+        const currentClass = student.dataset.class;
+
+        let newClass = currentClass;
+        if (currentClass === "JSS2") newClass = "JSS1";
+        else if (currentClass === "JSS3") newClass = "JSS2";
+        else if (currentClass === "SS1") newClass = "JSS3";
+        else if (currentClass === "SS2") newClass = "SS1";
+        else if (currentClass === "SS3") newClass = "SS2";
+        else if (currentClass === "GRADUATED") newClass = "SS3";
+        await supabaseClient
+          .from("students")
+          .update({
+            class: newClass,
+          })
+          .eq("auth_user_id", studentId);
+      }
+      await loadAll();
+      await loadStudentDropdown();
+
+      alert("Selected students moved back successfully");
+    });
+  async function loadSummaryCards() {
+    const { data: results } = await supabaseClient
+      .from("results")
+      .select("score");
+
+    const box = document.getElementById("summaryBox");
+    if (!box) return;
+
+    if (!results || results.length === 0) {
+      box.innerHTML = "No results yet";
+      return;
+    }
+
+    let total = 0;
+    let count = 0;
+
+    results.forEach((r) => {
+      const score = Number(r.score);
+      if (!isNaN(score)) {
+        total += score;
+        count++;
+      }
+    });
+
+    const avg = count ? (total / count).toFixed(2) : 0;
+
+    box.innerHTML = `
+    <div style="padding:12px; border:1px solid #ccc; margin:10px 0;">
+      <h3>📊 Results Summary</h3>
+      <p><b>Total Results:</b> ${count}</p>
+      <p><b>Average Score:</b> ${avg}</p>
+    </div>
+  `;
+  }
+});

@@ -20,31 +20,46 @@
       <!-- ================= STUDENTS ================= -->
       <section class="panel">
         <h2>👨‍🎓 Student Management</h2>
-
         <form id="add-student-form">
           <input id="student-name" placeholder="Full Name" required />
+
           <input id="student-email" type="email" placeholder="Email" required />
+
           <input id="student-class" placeholder="Class" required />
+
+          <!-- 🔥 THIS IS THE IMPORTANT FIX -->
+          <input
+            id="student-phone"
+            type="text"
+            placeholder="Phone Number"
+            required
+          />
+
           <input
             id="student-password"
             type="password"
             placeholder="Password"
             required
           />
+
           <button type="submit">Add Student</button>
         </form>
 
         <table id="students-table">
           <thead>
             <tr>
+              <th>Select</th>
               <th>Name</th>
               <th>Auth ID</th>
               <th>Class</th>
+              <th>Phone</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
+        <button id="promoteSelectedBtn">🎓 Promote Selected Students</button>
+        <button id="demoteSelectedBtn">⬅️ Move Selected Students Back</button>
       </section>
 
       <!-- ================= RESULTS ================= -->
@@ -60,12 +75,49 @@
           <button type="submit">Add Result</button>
         </form>
 
+        <!-- 🔍 SEARCH BOX -->
+        <input
+          type="text"
+          id="result-search"
+          placeholder="Search student name..."
+          style="margin-bottom: 10px; width: 300px; padding: 8px"
+        />
+        <select id="admin-filter-term">
+          <option value="">All Terms</option>
+          <option value="First Term">First Term</option>
+          <option value="Second Term">Second Term</option>
+          <option value="Third Term">Third Term</option>
+        </select>
+
+        <input
+          type="text"
+          id="admin-filter-year"
+          placeholder="Year (e.g. 2025/2026)"
+        />
+
+        <button id="admin-filter-btn">Filter</button>
+        <div
+          id="average-card"
+          style="
+            margin: 15px 0;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none;
+          "
+        >
+          Average: <span id="average-value">0</span>
+        </div>
+
         <table id="results-table">
           <thead>
             <tr>
-              <th>ID</th>
+              <th>Student Name</th>
               <th>Subject</th>
               <th>Score</th>
+              <th>Term</th>
+              <th>Year</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -164,6 +216,7 @@
       <button id="disableResultBtn">Disable</button>
 
       <p id="resultStatusText"></p>
+      <div id="summaryBox"></div>
     </section>
 
     <!-- ================= NEWS ================= -->
@@ -218,6 +271,23 @@
         </thead>
 
         <tbody id="resetBody"></tbody>
+      </table>
+    </section>
+    <!-- ================= PASSPORT CHANGE CONTROL ================= -->
+    <section class="panel">
+      <h2>📷 Passport Change Permission</h2>
+
+      <table border="1" width="100%">
+        <thead>
+          <tr>
+            <th>Student Name</th>
+            <th>Class</th>
+            <th>Permission</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody id="passportPermissionBody"></tbody>
       </table>
     </section>
   </body>

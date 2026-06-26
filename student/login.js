@@ -2,38 +2,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("login-form");
   const message = document.getElementById("login-message");
 
-  const setupForgotPassword = () => {
-    document.addEventListener("click", async (e) => {
-      const target = e.target;
+  const modal = document.getElementById("successModal");
+  const closeBtn = document.getElementById("closeModal");
 
-      if (target && target.id === "forgotPasswordLink") {
-        e.preventDefault();
+  function openModal() {
+    modal.style.display = "flex";
+  }
 
-        const email = prompt("Enter your registered email address:");
-        if (!email) return;
+  function closeModal() {
+    modal.style.display = "none";
+  }
 
-        const { data, error } = await supabaseClient
-          .from("password_reset_requests")
-          .insert([
-            {
-              student_email: email.trim(),
-              status: "Pending",
-            },
-          ]);
-
-        console.log("SUPABASE RESULT:", { data, error });
-
-        if (error) {
-          alert("❌ Failed: " + error.message);
-          return;
-        }
-
-        alert("✅ Request sent successfully!");
-      }
-    });
-  };
-  setupForgotPassword();
-
+  closeBtn?.addEventListener("click", closeModal);
+  // =====================================================
+  // 🔐 LOGIN SYSTEM (UNCHANGED - WORKING)
+  // =====================================================
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -60,19 +43,96 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // success
       message.textContent = "✅ Login Successful!";
       message.style.color = "green";
 
       localStorage.setItem("loggedIn", "true");
+      const user = data.user;
 
-      setTimeout(() => {
+      if (!user) {
+        message.textContent = "❌ User not found";
+        return;
+      }
+
+      const { data: student, error: studentError } = await supabaseClient
+        .from("students")
+        .select("*")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      console.log("AUTH EMAIL:", user.email);
+      console.log("STUDENT:", student);
+      console.log("STUDENT ERROR:", studentError);
+      if (studentError) {
+        console.log(studentError);
+      }
+
+      if (!student) {
+        message.textContent = "❌ Student record not found";
+        return;
+      }
+
+      if (student.must_change_password === true) {
+        window.location.href = "new-password.html";
+      } else {
         window.location.href = "student-dashboard.html";
-      }, 800);
+      }
     } catch (err) {
       console.error("LOGIN ERROR:", err);
       message.textContent = "❌ Server error, try again!";
       message.style.color = "red";
+    }
+  });
+
+  // =====================================================
+  // 🔁 FORGOT PASSWORD (FIXED FLOW - IMPORTANT)
+  // =====================================================
+  document.addEventListener("click", async (e) => {
+    if (e.target && e.target.id === "forgotPasswordLink") {
+      e.preventDefault();
+
+      const email = prompt("Enter your registered email address:");
+      if (!email) return;
+
+      try {
+        // 1. FIND STUDENT
+        const { data: student, error: studentError } = await supabaseClient
+          .from("students")
+          .select("id, auth_user_id, name, email, phone")
+          .eq("email", email.trim())
+          .single();
+
+        if (studentError || !student) {
+          alert("Student not found");
+          return;
+        }
+
+        // 2. CREATE RESET REQUEST
+        const { data, error } = await supabaseClient
+          .from("password_reset_requests")
+          .insert([
+            {
+              student_email: student.email,
+              student_name: student.name,
+              student_id: student.id,
+              auth_user_id: student.auth_user_id,
+              student_phone: student.phone,
+              status: "Pending",
+              message: "Password reset requested",
+            },
+          ])
+          .select();
+
+        if (error) {
+          alert("Failed: " + error.message);
+          return;
+        }
+
+        openModal();
+      } catch (err) {
+        console.error(err);
+        alert("Unexpected error occurred");
+      }
     }
   });
 });
