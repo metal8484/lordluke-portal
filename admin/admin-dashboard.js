@@ -892,20 +892,23 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  async function deleteNews(id) {
+  window.deleteNews = async function (id) {
     const confirmDelete = confirm("Delete this news?");
     if (!confirmDelete) return;
 
     const { error } = await supabaseClient.from("news").delete().eq("id", id);
 
     if (error) {
+      console.log(error);
       alert("Delete failed");
       return;
     }
 
-    alert("News deleted");
-    loadAdminNews();
-  }
+    alert("News deleted successfully");
+
+    // refresh news table
+    loadNews();
+  };
 
   async function editNews(id, oldTitle, oldMessage) {
     const title = prompt("Edit title:", oldTitle);
@@ -1181,7 +1184,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
     loadResetRequests();
   }
-  async function markResetDone(id) {
+  window.markResetDone = async function (id) {
     const newPassword = prompt("Enter new password for student:");
     if (!newPassword) return;
 
@@ -1197,7 +1200,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    // 2. Call Edge Function (REAL password reset)
+    // 2. Call Edge Function
     const res = await fetch(
       "https://iupwqyksdntdccnzoxrb.supabase.co/functions/v1/reset-password",
       {
@@ -1214,31 +1217,22 @@ document.addEventListener("DOMContentLoaded", async function () {
     );
 
     const result = await res.json();
-    console.log("EDGE RESULT:", result);
 
     if (!res.ok) {
-      alert("Password reset failed: " + (result.error || "unknown"));
+      alert("Password reset failed: " + (result.error || "unknown error"));
       return;
     }
-    // =====================================================
-    // FORCE STUDENT TO CHANGE PASSWORD
-    // =====================================================
 
-    const { error: flagError } = await supabaseClient
+    // 3. Update student flag
+    await supabaseClient
       .from("students")
       .update({
         must_change_password: true,
       })
       .eq("auth_user_id", req.auth_user_id);
 
-    if (flagError) {
-      console.log(flagError);
-      alert("Password changed but failed to set must_change_password");
-      return;
-    }
-
-    // 3. Update status in DB
-    const { error: updateError } = await supabaseClient
+    // 4. Mark request as done
+    await supabaseClient
       .from("password_reset_requests")
       .update({
         status: "Done",
@@ -1246,16 +1240,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       })
       .eq("id", id);
 
-    if (updateError) {
-      alert("Password updated but status failed");
-      return;
-    }
-
-    // 4. Refresh UI
-    loadResetRequests();
-
     alert("Password reset completed ✔");
-  }
+
+    loadResetRequests();
+  };
   // =====================================================
   // 🔐 PASSWORD RESET SYSTEM (FIXED & CLEAN)
   // =====================================================
