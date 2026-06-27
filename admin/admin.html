@@ -82,6 +82,7 @@
             "currentAdmin",
             JSON.stringify({
               ...admin,
+              role: admin.role || "Admin",
               isCentral: isCentral,
             }),
           );

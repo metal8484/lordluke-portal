@@ -105,6 +105,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const loginForm = document.getElementById("login-form");
 
   const loggedAdmin = JSON.parse(localStorage.getItem("currentAdmin"));
+  const currentAdminRole = loggedAdmin?.role || "Admin";
 
   if (!loggedAdmin && !loginForm) {
     window.location.href = "admin.html";
@@ -485,6 +486,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       const username = document.getElementById("admin-username").value;
       const email = document.getElementById("admin-email").value;
       const password = document.getElementById("admin-password").value;
+      const role = document.getElementById("admin-role").value;
 
       if (AppState.editAdminId) {
         await supabaseClient
