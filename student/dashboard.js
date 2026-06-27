@@ -416,9 +416,29 @@ document.addEventListener("DOMContentLoaded", async () => {
           student?.passport_url &&
           student?.passport_change_allowed !== true
         ) {
-          alert(
-            "Passport photo already uploaded. Contact the school administrator if you need to change it.",
+          const sendRequest = confirm(
+            "Your passport photo already exists.\n\nWould you like to send a passport change request to the administrator?",
           );
+
+          if (!sendRequest) return;
+
+          const { error } = await supabaseClient
+            .from("students")
+            .update({
+              passport_change_requested: true,
+            })
+            .eq("auth_user_id", user.id);
+
+          if (error) {
+            console.log(error);
+            alert("Failed to send request.");
+            return;
+          }
+
+          alert(
+            "Your request has been sent successfully.\n\nPlease wait for the administrator to approve it.",
+          );
+
           return;
         }
 

@@ -22,7 +22,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   window.CURRENT_ADMIN = getCurrentAdmin();
+
+  console.log("Username:", window.CURRENT_ADMIN?.username);
+  console.log("Role:", window.CURRENT_ADMIN?.role);
+  console.log("isCentral:", window.CURRENT_ADMIN?.isCentral);
+
   window.IS_CENTRAL_ADMIN = isCentralAdmin(window.CURRENT_ADMIN);
+
   // =========================================================
   // 🧠 GLOBAL STATE
   // =========================================================
@@ -260,22 +266,64 @@ document.addEventListener("DOMContentLoaded", async function () {
   `;
     }
     // ADMINS
+    // ADMINS
     adminsTable.innerHTML = "";
+
     (admins || []).forEach((a) => {
+      let canDelete = false;
+
+      const current = window.CURRENT_ADMIN || {};
+      const currentRole = (current.role || "").toLowerCase();
+      const currentUsername = (current.username || "").toLowerCase();
+
+      const targetRole = (a.role || "").toLowerCase();
+      const targetUsername = (a.username || "").toLowerCase();
+
+      // Define hierarchy level
+      function getLevel(role, username) {
+        if (username === "central" || username === "centraladmin") return 3;
+        if (role === "senior admin" || role === "senior") return 2;
+        return 1; // admin
+      }
+
+      const currentLevel = getLevel(currentRole, currentUsername);
+      const targetLevel = getLevel(targetRole, targetUsername);
+
+      // RULE:
+      // higher level can delete lower level ONLY
+      // cannot delete same level or above
+
+      if (currentLevel === 3) {
+        // Central: can delete everyone except other central
+        canDelete = targetLevel < 3;
+      } else if (currentLevel === 2) {
+        // Senior: ONLY delete Admin (level 1)
+        canDelete = targetLevel === 1;
+      } else {
+        // Admin: cannot delete anyone
+        canDelete = false;
+      }
+
       adminsTable.innerHTML += `
-        <tr class="admin-row"
-            data-id="${a.id}"
-            data-username="${a.username}"
-            data-email="${a.email}">
-          <td>${a.username}</td>
-          <td>${a.email}</td>
-          <td>
-            <button class="delete-admin-btn" data-id="${a.id}">
-              Delete
-            </button>
-          </td>
-        </tr>
-      `;
+    <tr class="admin-row"
+        data-id="${a.id}"
+        data-username="${a.username}"
+        data-email="${a.email}"
+        data-role="${a.role || "Admin"}">
+
+      <td>${a.username}</td>
+      <td>${a.email}</td>
+      <td>${a.role || "Admin"}</td>
+
+      <td>
+        ${
+          canDelete
+            ? `<button class="delete-admin-btn" data-id="${a.id}">Delete</button>`
+            : ""
+        }
+      </td>
+    </tr>
+  `;
     });
   }
 
@@ -488,17 +536,45 @@ document.addEventListener("DOMContentLoaded", async function () {
       const password = document.getElementById("admin-password").value;
       const role = document.getElementById("admin-role").value;
 
+      console.log("Selected Role:", role);
       if (AppState.editAdminId) {
         await supabaseClient
           .from("admins")
-          .update({ username, email })
+          .update({
+            username,
+            email,
+            role,
+          })
           .eq("id", AppState.editAdminId);
 
         AppState.editAdminId = null;
+        const current = window.CURRENT_ADMIN || {};
+        const currentRole = (current.role || "").toLowerCase();
+        if (currentRole === "senior" || currentRole === "senior admin") {
+          if (role !== "Admin") {
+            alert("Senior Admin can only create Admin accounts!");
+            return;
+          }
+        }
+
+        if (
+          current.username !== "central" &&
+          current.username !== "centraladmin"
+        ) {
+          if (role === "Senior Admin" || role === "Central Admin") {
+            alert("You are not allowed to create this role!");
+            return;
+          }
+        }
       } else {
-        await supabaseClient
-          .from("admins")
-          .insert([{ username, email, password }]);
+        await supabaseClient.from("admins").insert([
+          {
+            username,
+            email,
+            password,
+            role,
+          },
+        ]);
       }
 
       e.target.reset();
@@ -1148,8 +1224,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     const { data, error } = await supabaseClient
       .from("password_reset_requests")
       .select("*")
+      .eq("status", "Pending")
       .order("id", { ascending: false });
-
     const table = document.getElementById("resetBody");
 
     if (!table) return;
@@ -1313,7 +1389,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function loadPassportPermissions() {
     const { data, error } = await supabaseClient
       .from("students")
-      .select("name,class,auth_user_id,passport_change_allowed")
+      .select(
+        "name,class,auth_user_id,passport_change_allowed,passport_change_requested",
+      )
+      .eq("passport_change_requested", true)
       .order("name");
 
     if (error) {
@@ -1326,6 +1405,16 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (!tbody) return;
 
     tbody.innerHTML = "";
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `
+    <tr>
+      <td colspan="4" style="text-align:center;">
+        ✅ No pending passport requests.
+      </td>
+    </tr>
+  `;
+      return;
+    }
 
     (data || []).forEach((student) => {
       tbody.innerHTML += `
@@ -1333,13 +1422,25 @@ document.addEventListener("DOMContentLoaded", async function () {
         <td>${student.name}</td>
         <td>${student.class || "-"}</td>
         <td>
-          ${student.passport_change_allowed ? "✅ Allowed" : "❌ Not Allowed"}
+         <td>
+  ${
+    student.passport_change_allowed
+      ? "✅ Allowed"
+      : student.passport_change_requested
+        ? "🟡 Pending Request"
+        : "❌ Not Allowed"
+  }
+</td>
         </td>
         <td>
-          <button onclick="allowPassportChange('${student.auth_user_id}')">
-            Allow Passport Change
-          </button>
-        </td>
+  ${
+    student.passport_change_requested
+      ? `<button onclick="allowPassportChange('${student.auth_user_id}')">
+           ✅ Approve Request
+         </button>`
+      : ""
+  }
+</td>
       </tr>
     `;
     });
@@ -1354,6 +1455,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       .from("students")
       .update({
         passport_change_allowed: true,
+        passport_change_requested: false,
       })
       .eq("auth_user_id", studentId);
 
@@ -1363,9 +1465,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    alert("Passport change permission granted");
+    alert("✅ Passport request approved successfully.");
 
-    loadPassportPermissions();
+    await loadPassportPermissions();
   };
   // =====================================================
   // 🎓 PROMOTE SELECTED STUDENTS
@@ -1451,6 +1553,27 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       alert("Selected students moved back successfully");
     });
+  function applyRoleRestrictions() {
+    const roleSelect = document.getElementById("admin-role");
+    if (!roleSelect) return;
+
+    const current = window.CURRENT_ADMIN || {};
+    const username = (current.username || "").toLowerCase();
+    const role = (current.role || "").toLowerCase();
+
+    // RESET FIRST
+    roleSelect.innerHTML = `
+    <option value="Admin">Admin</option>
+    <option value="Senior Admin">Senior Admin</option>
+    <option value="Central Admin">Central Admin</option>
+  `;
+
+    const isCentral = username === "central" || username === "centraladmin";
+
+    if (!isCentral) {
+      roleSelect.innerHTML = `<option value="Admin">Admin</option>`;
+    }
+  }
   async function loadSummaryCards() {
     const { data: results } = await supabaseClient
       .from("results")
@@ -1485,4 +1608,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     </div>
   `;
   }
+  window.CURRENT_ADMIN = getCurrentAdmin();
+  applyRoleRestrictions();
 });
