@@ -4,22 +4,73 @@
     <meta charset="UTF-8" />
     <title>Admin Dashboard</title>
 
-    <link rel="stylesheet" href="admin.css" />
+  <link rel="stylesheet" href="admin-dashboard.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script defer src="admin-dashboard.js"></script>
   </head>
 
   <body>
-    <header>
-      <h1>🧠 Admin Dashboard</h1>
-      <button id="logout-btn">Logout</button>
-    </header>
+  <div class="admin-layout">
 
-    <div class="dashboard-container">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h2>🧠 Admin</h2>
+      </div>
+
+      <nav class="sidebar-menu">
+      <button class="nav-btn" data-target="students-panel">
+  👨‍🎓 Students
+</button>
+        <button class="nav-btn" data-target="results-panel">
+  📝 Results
+</button>
+        <button class="nav-btn" data-target="admins-panel">
+  👨‍💼 Admins
+</button>
+        <button class="nav-btn" data-target="fees-panel">
+  💰 Fees
+ <button class="nav-btn" data-target="payments-panel" type="button">
+  💳 Payments
+</button>
+        <button class="nav-btn" data-target="results-panel">
+  📝 Results
+</button>
+       <button class="nav-btn" data-target="news-panel">
+  📰 News
+</button>
+  📰 News
+</button>
+       <button class="nav-btn" data-target="scratch-panel">
+  🎟 Scratch Cards
+</button>
+        <button class="nav-btn" data-target="reset-panel">
+  🔐 Password Reset
+</button>
+        <button class="nav-btn" data-target="passport-panel">
+  📷 Passport Approval
+</button>
+      </nav>
+
+      <button id="logout-btn">Logout</button>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <header class="topbar">
+        <div>
+          <h1>Welcome, Administrator 👋</h1>
+          <p>Manage your entire school from one dashboard.</p>
+        </div>
+      </header>
+
+      <div class="dashboard-container">
       <!-- ================= STUDENTS ================= -->
-      <section class="panel">
-        <h2>👨‍🎓 Student Management</h2>
+    
+       <section class="panel" id="students-panel">
+  <h2>👨‍🎓 Student Management</h2>
         <form id="add-student-form">
           <input id="student-name" placeholder="Full Name" required />
 
@@ -63,8 +114,8 @@
       </section>
 
       <!-- ================= RESULTS ================= -->
-      <section class="panel">
-        <h2>📝 Result Management</h2>
+       <section class="panel" id="results-panel">
+  <h2>📝 Result Management</h2>
 
         <form id="add-result-form">
           <select id="result-student-id" required></select>
@@ -126,8 +177,8 @@
       </section>
 
       <!-- ================= ADMINS ================= -->
-      <section class="panel">
-        <h2>👨‍💼 Admin Management</h2>
+     <section class="panel" id="admins-panel">
+  <h2>👨‍💼 Admin Management</h2>
 
         <form id="add-admin-form">
           <input id="admin-username" placeholder="Username" required />
@@ -161,7 +212,10 @@
     </div>
 
     <!-- ================= FEES ================= -->
-    <h2>💰 Fees Management</h2>
+   <!-- ================= FEES ================= -->
+<section class="panel" id="fees-panel">
+
+<h2>💰 Fees Management</h2>
 
     <div>
       <select id="student_id"></select>
@@ -199,24 +253,45 @@
     </table>
 
     <!-- PAYMENT HISTORY -->
-    <h2>💳 Payment History</h2>
+    <!-- PAYMENT HISTORY -->
+<!-- ================= FEES END ================= -->
+</section>
 
-    <table border="1">
-      <thead>
-        <tr>
-          <th>Student ID</th>
-          <th>Amount Paid</th>
-          <th>Term</th>
-          <th>Year</th>
-          <th>Time</th>
-        </tr>
-      </thead>
+<!-- ================= PAYMENT HISTORY ================= -->
+<section class="panel" id="payments-panel">
+
+<h2>💳 Payment History</h2>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Student ID</th>
+      <th>Amount Paid</th>
+      <th>Term</th>
+      <th>Year</th>
+      <th>Time</th>
+    </tr>
+  </thead>
+  <tbody id="paymentsBody"></tbody>
+</table>
+
+</section> 
       <tbody id="paymentsBody"></tbody>
     </table>
 
-    <!-- ================= RESULT CONTROL (RESTORED) ================= -->
-    <section class="panel">
-      <h2>🎛 Result Access Control</h2>
+</section>
+ <!-- ================= RESULT CONTROL (RESTORED) ================= -->
+<section class="panel" id="result-control-panel">
+  <h2>🎛 Result Access Control</h2>
+
+  <button id="enableResultBtn">Enable</button>
+  <button id="disableResultBtn">Disable</button>
+
+  <p id="resultStatusText"></p>
+  <div id="summaryBox"></div>
+</section>
+  <h2>🎛 Result Access Control</h2>
+      
 
       <button id="enableResultBtn">Enable</button>
       <button id="disableResultBtn">Disable</button>
@@ -226,8 +301,8 @@
     </section>
 
     <!-- ================= NEWS ================= -->
-    <section class="panel">
-      <h2>📰 School News</h2>
+ <section class="panel" id="news-panel">
+  <h2>📰 School News</h2>
 
       <form id="news-form">
         <input id="news-title" placeholder="Title" required />
@@ -241,8 +316,8 @@
     </section>
 
     <!-- ================= SCRATCH CARD SYSTEM (RESTORED) ================= -->
-    <section class="panel">
-      <h2>🎟 Scratch Card Generator</h2>
+     <section class="panel" id="scratch-panel">
+  <h2>🎟 Scratch Card Generator</h2>
 
       <input id="scratch-count" type="number" placeholder="How many cards?" />
       <button id="generate-scratch-btn">Generate Cards</button>
@@ -262,9 +337,8 @@
       </table>
     </section>
     <!-- ================= PASSWORD RESET REQUESTS ================= -->
-    <section class="panel">
-      <h2>🔐 Password Reset Requests</h2>
-
+    <section class="panel" id="reset-panel">
+  <h2>🔐 Password Reset Requests</h2>
       <button onclick="loadResetRequests()">🔄 Refresh</button>
 
       <table border="1" width="100%">
@@ -280,8 +354,8 @@
       </table>
     </section>
     <!-- ================= PASSPORT CHANGE CONTROL ================= -->
-    <section class="panel">
-      <h2>📷 Passport Change Permission</h2>
+     <section class="panel" id="passport-panel">
+  <h2>📷 Passport Change Permission</h2>
 
       <table border="1" width="100%">
         <thead>
@@ -296,5 +370,9 @@
         <tbody id="passportPermissionBody"></tbody>
       </table>
     </section>
-  </body>
+       </div>
+    </main>
+
+  </div>
+</body>
 </html>

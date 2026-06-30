@@ -1224,8 +1224,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     const { data, error } = await supabaseClient
       .from("password_reset_requests")
       .select("*")
-      .eq("status", "Pending")
       .order("id", { ascending: false });
+
     const table = document.getElementById("resetBody");
 
     if (!table) return;
@@ -1610,4 +1610,29 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
   window.CURRENT_ADMIN = getCurrentAdmin();
   applyRoleRestrictions();
+});
+/* ===== Sidebar Navigation ===== */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const navButtons = document.querySelectorAll(".nav-btn");
+  const panels = document.querySelectorAll(".panel");
+
+  navButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.target;
+
+      // Ignore buttons that don't have a target yet
+      if (!target) return;
+
+      panels.forEach((panel) => {
+        panel.style.display = "none";
+      });
+
+      const selectedPanel = document.getElementById(target);
+
+      if (selectedPanel) {
+        selectedPanel.style.display = "block";
+      }
+    });
+  });
 });

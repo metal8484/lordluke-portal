@@ -1,0 +1,219 @@
+/* ===========================
+   GLOBAL RESET
+=========================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f4f7fb;
+  color: #222;
+}
+
+/* ===========================
+   MAIN LAYOUT
+=========================== */
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===========================
+   LEFT SIDEBAR
+=========================== */
+
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  overflow-y: auto;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  background: linear-gradient(180deg, #1f2937, #111827);
+  color: white;
+
+  padding: 20px 10px;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+
+  transition: all 0.3s ease;
+}
+
+.sidebar-logo {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.sidebar-logo h2 {
+  font-size: 24px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav-btn {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 6px 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: transparent;
+  color: #e5e7eb;
+
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(5px);
+}
+
+.nav-btn.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.nav-btn:hover {
+  background: #3b82f6;
+  transform: translateX(6px);
+}
+
+#logout-btn {
+  margin-top: auto;
+  border: none;
+  background: #ef4444;
+  color: white;
+  padding: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+/* ===========================
+   MAIN CONTENT
+=========================== */
+
+.main-content {
+  margin-left: 260px;
+  padding: 20px;
+  background: #f4f6f9;
+  min-height: 100vh;
+}
+/* ===========================
+   TOP HEADER
+=========================== */
+
+.topbar {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.topbar h1 {
+  font-size: 22px;
+  font-weight: 700;
+
+  background: linear-gradient(90deg, #3b82f6, #10b981, #3b82f6);
+  background-size: 200% auto;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: shine 4s linear infinite;
+}
+
+.topbar p {
+  color: #666;
+  font-size: 15px;
+}
+
+/* ===========================
+   CONTENT AREA
+=========================== */
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* ===========================
+   PANELS
+=========================== */
+
+.panel {
+  display: none;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+
+  animation: fadeIn 0.3s ease;
+}
+
+.panel.active {
+  display: block;
+}
+
+.panel h2 {
+  color: #1e3a8a;
+  margin-bottom: 20px;
+}
+/* ===========================
+   PANEL VISIBILITY
+=========================== */
+
+.panel {
+  display: none;
+}
+
+#students-panel {
+  display: block;
+}
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes shine {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
